@@ -139,6 +139,7 @@ tr.detail-row.open{display:table-row}
   background:#fffbeb}
 .ev-open{font-size:11.5px}
 .btn-tiny{padding:3px 8px;border-radius:4px;font-size:11px;border:1px solid #e5e7eb;background:#f9fafb}
+.btn-view{background:#ede9fe;border-color:#c4b5fd;color:#5b21b6}.btn-view:hover{background:#ddd6fe}
 .btn-del{color:#dc2626;border-color:#fca5a5!important}
 .btn-add-link{padding:4px 10px;border:1px dashed #94a3b8;border-radius:4px;background:none;font-size:11.5px;color:#64748b;margin-right:8px}
 .btn-add-file{padding:4px 10px;border:1px dashed #7c3aed;border-radius:4px;background:#faf5ff;font-size:11.5px;color:#7c3aed}
@@ -744,6 +745,7 @@ function buildFilesHtml(rid,files){
       <input type="date" class="exp-date-in" value="${esc(f.expiry_date||'')}"
         title="Valid Until date" onchange="updateFileExpiry('${rid}',${f.id},this.value)"/>
       ${expiryBadgeHtml(f.expiry_date)}
+      ${VIEWABLE.test(f.name)?`<button class="btn-tiny btn-view" id="vbtn-${f.id}" onclick="viewFile(${f.id},'${esc(f.name)}')">👁 View</button>`:""}
       <button class="btn-tiny" onclick="downloadFile(${f.id},'${esc(f.name)}')">⬇ Download</button>
       <button class="btn-del" onclick="removeFile('${rid}',${f.id})">✕</button>
     </div>`).join("");
@@ -844,6 +846,27 @@ async function downloadFile(id,name){
   const {data,error}=await db.from("attached_files").select("data").eq("id",id).single();
   if(error||!data?.data){alert("Could not load file.");return;}
   const a=document.createElement("a");a.href=data.data;a.download=name;a.click();
+}
+function dataUriToBlob(dataUri){
+  const [header,b64]=dataUri.split(",");
+  const mime=(header.match(/:(.*?);/)||[])[1]||"application/octet-stream";
+  const bin=atob(b64); const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+const VIEWABLE=/\.(jpe?g|png|gif|webp|svg|pdf|bmp|tiff?)$/i;
+async function viewFile(id,name){
+  const btn=document.getElementById("vbtn-"+id);
+  if(btn){btn.textContent="⏳";btn.disabled=true;}
+  const {data,error}=await db.from("attached_files").select("data").eq("id",id).single();
+  if(btn){btn.textContent="👁 View";btn.disabled=false;}
+  if(error||!data?.data){alert("Could not load file.");return;}
+  const blob=dataUriToBlob(data.data);
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,"_blank");
+  // Revoke after tab has had time to load
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  if(!w) alert("Pop-up blocked — please allow pop-ups for this page, then try again.");
 }
 async function removeFile(rid,id){
   await db.from("attached_files").delete().eq("id",id);
