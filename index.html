@@ -204,6 +204,28 @@ tr.detail-row.open{display:table-row}
 .pl-card .pc-owner{font-size:9.5px;color:#94a3b8;margin-top:4px}
 .pl-card .pc-status{font-size:9px;font-weight:700;margin-top:3px}
 
+/* PLANNER DONE column */
+.pl-col.done-col{background:#f0fdf4;border:2px solid #10b981;flex:0 0 210px;min-width:210px}
+.pl-col.done-col .pl-col-head{background:#f0fdf4}
+.pl-col.done-col .pl-month{color:#065f46}
+.pl-card.done-card{opacity:.65;cursor:default;background:#f0fdf4;border-left-color:#10b981}
+.pl-card.done-card:hover{transform:none;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.pl-card .pc-urgent{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:3px;
+  display:inline-block;margin-top:3px}
+.pc-urg-nc{background:#fee2e2;color:#991b1b}
+.pc-urg-par{background:#fef3c7;color:#92400e}
+.pc-urg-rev{background:#dbeafe;color:#1e40af}
+.pc-urg-nya{background:#f1f5f9;color:#475569}
+.pc-urg-done{background:#d1fae5;color:#065f46}
+/* Period picker */
+.period-btns{display:flex;gap:3px;background:#e2e8f0;border-radius:6px;padding:2px}
+.period-btn{padding:4px 11px;border-radius:4px;border:none;font-size:11px;font-weight:600;
+  background:transparent;color:#64748b;cursor:pointer;transition:all .15s}
+.period-btn.active{background:#1e3a5f;color:#fff}
+/* Auto-schedule button */
+.btn-auto-sched{padding:5px 13px;border-radius:5px;border:none;font-size:11.5px;
+  font-weight:600;background:#7c3aed;color:#fff;cursor:pointer;transition:opacity .15s}
+.btn-auto-sched:hover{opacity:.85}
 /* PLANNER empty state */
 .pl-empty{text-align:center;color:#94a3b8;font-size:11px;padding:20px 8px;line-height:1.5}
 
@@ -338,7 +360,12 @@ tr.detail-row.open{display:table-row}
 <!-- PLANNER VIEW -->
 <div id="planner-view">
   <div id="planner-toolbar">
-    <span style="font-size:13px">🔍</span>
+    <div class="period-btns">
+      <button class="period-btn active" id="pb-sa2" onclick="switchPeriod('sa2')">→ SA2 (2026–27)</button>
+      <button class="period-btn" id="pb-sa3" onclick="switchPeriod('sa3')">→ SA3 (2027–28)</button>
+    </div>
+    <button class="btn-auto-sched" onclick="autoSchedule()">🗓 Auto-Schedule</button>
+    <span style="font-size:13px;margin-left:4px">🔍</span>
     <input type="text" class="pl-search" id="pl-search" placeholder="Filter requirements…" oninput="renderPlanner()"/>
     <select id="pl-src" onchange="renderPlanner()">
       <option value="">All Sources</option>
@@ -1040,50 +1067,135 @@ function switchTab(tab){
 }
 
 // ── PLANNER ───────────────────────────────────────────────────────────
-// Month range: current month → SA2 month (June 2027), plus Backlog
-const PLAN_MONTHS = (function(){
-  const months=[];
-  const start=new Date(2026,7,1); // Aug 2026
-  const end  =new Date(2027,5,1); // Jun 2027
-  let d=new Date(start);
-  while(d<=end){months.push(new Date(d));d.setMonth(d.getMonth()+1);}
-  return months;
-})();
-const SA2_KEY="2027-06"; // year-month key for SA2 column
 const MONTH_NAMES=["January","February","March","April","May","June",
   "July","August","September","October","November","December"];
+const SA2_KEY="2027-06";
+const SA3_KEY="2028-06";
+let PLAN_PERIOD="sa2"; // current period selection
+let dragRid=null;
+
+function getPlanMonths(period){
+  const ranges={
+    sa2:{start:new Date(2026,7,1), end:new Date(2027,5,1)},  // Aug 2026 – Jun 2027
+    sa3:{start:new Date(2027,6,1), end:new Date(2028,5,1)},  // Jul 2027 – Jun 2028
+  };
+  const {start,end}=ranges[period]||ranges.sa2;
+  const months=[]; let d=new Date(start);
+  while(d<=end){months.push(new Date(d));d.setMonth(d.getMonth()+1);}
+  return months;
+}
+function getSAKey(period){return period==="sa3"?SA3_KEY:SA2_KEY;}
 
 function monthKey(date){
-  // date is a Date or "YYYY-MM-DD" string → return "YYYY-MM"
   if(!date) return null;
   const d=typeof date==="string"?date:date.toISOString();
   return d.substring(0,7);
 }
 function today_key(){return monthKey(new Date().toISOString().slice(0,10));}
 
-function cardColor(status){
-  const m={"Compliant":"c-compliant","Partially Compliant":"c-partial",
-    "Non-Compliant":"c-nonconform","Not Yet Assessed":"c-notyet","Under Review":"c-review"};
-  return m[status]||"c-notyet";
-}
-function cardStatusLabel(status){
-  const m={"Compliant":"✅ Compliant","Partially Compliant":"⚠️ Partial",
-    "Non-Compliant":"❌ Non-Conform","Not Yet Assessed":"⬜ Not Assessed","Under Review":"📋 Review"};
-  return m[status]||status;
+function switchPeriod(period){
+  PLAN_PERIOD=period;
+  document.getElementById("pb-sa2").classList.toggle("active",period==="sa2");
+  document.getElementById("pb-sa3").classList.toggle("active",period==="sa3");
+  renderPlanner();
 }
 
-let dragRid=null;
+// ── AUTO-SCHEDULE ─────────────────────────────────────────────────────
+async function autoSchedule(){
+  const period=PLAN_PERIOD;
+  const saLabel=period==="sa2"?"SA2 (Jun 2027)":"SA3 (Jun 2028)";
+  if(!confirm(`Auto-Schedule: distribute all Non-Compliant, Partial, Under Review, and Not Yet Assessed requirements across months leading up to ${saLabel}?\n\nCompliant items will be left as-is (they go to the Done column).\nExisting scheduled dates will be OVERWRITTEN.`)) return;
+
+  const months=getPlanMonths(period); // ordered months for this period
+  const saKey=getSAKey(period);
+
+  // Section order for spreading Not Yet Assessed
+  function sectionPriority(clauseRef){
+    const c=(clauseRef||"").replace(/[^0-9.]/g,"").split(".")[0];
+    const n=parseInt(c)||9;
+    return n; // 4,5,6,7,8,9(Annex)
+  }
+
+  // Group DAT rows by priority bucket
+  const buckets={nc:[],partial:[],review:[],nya_early:[],nya_mid:[],nya_late:[],nya_annex:[]};
+  REQS.filter(r=>r.type==="DAT").forEach(r=>{
+    const st=STATE[r.id]||{};
+    const status=st.status||"Not Yet Assessed";
+    if(status==="Compliant") return; // Done — skip
+    const sec=sectionPriority(r.clause_ref);
+    if(status==="Non-Compliant")        buckets.nc.push(r);
+    else if(status==="Partially Compliant") buckets.partial.push(r);
+    else if(status==="Under Review")    buckets.review.push(r);
+    else { // Not Yet Assessed — split by section
+      if(sec<=5)       buckets.nya_early.push(r);
+      else if(sec===6) buckets.nya_mid.push(r);
+      else if(sec===8) buckets.nya_late.push(r);
+      else if(sec>=9)  buckets.nya_annex.push(r);
+      else             buckets.nya_mid.push(r); // §7
+    }
+  });
+
+  // Month slice helper — spread items evenly across a slice of months
+  function spread(items, startIdx, endIdx){
+    const slice=months.slice(startIdx, endIdx+1);
+    if(!slice.length || !items.length) return;
+    items.forEach((r,i)=>{
+      const m=slice[i % slice.length];
+      STATE[r.id]=STATE[r.id]||{};
+      STATE[r.id].dueDate=monthKey(m)+"-01";
+    });
+  }
+
+  const n=months.length; // typically 11 (sa2) or 12 (sa3)
+  // Assign time windows (index into months array):
+  // NC: first 2 months
+  spread(buckets.nc,        0, Math.min(1, n-1));
+  // Partial + Review: months 1-3
+  spread([...buckets.partial,...buckets.review], 1, Math.min(3, n-1));
+  // NYA §4-5: months 2-3
+  spread(buckets.nya_early, 2, Math.min(3, n-1));
+  // NYA §6: months 3-5
+  spread(buckets.nya_mid,   3, Math.min(5, n-1));
+  // NYA §7 (inside nya_mid already included) + §8: months 5-7
+  spread(buckets.nya_late,  5, Math.min(7, n-1));
+  // Annex: months 4-6
+  spread(buckets.nya_annex, 4, Math.min(6, n-1));
+
+  // Batch save to Supabase
+  setStatus("saving");
+  const upserts=REQS.filter(r=>r.type==="DAT" && STATE[r.id]?.dueDate).map(r=>{
+    const st=STATE[r.id]||{};
+    return {row_id:r.id, due_date:st.dueDate,
+      status:st.status||"Not Yet Assessed", owner:st.owner||"",
+      last_reviewed:st.lastReviewed||"", notes:st.notes||"",
+      updated_at:new Date().toISOString()};
+  });
+  // Upsert in batches of 50
+  let err=null;
+  for(let i=0;i<upserts.length;i+=50){
+    const batch=upserts.slice(i,i+50);
+    const {error}=await db.from("row_state").upsert(batch,{onConflict:"row_id"});
+    if(error){err=error;break;}
+  }
+  if(err) setStatus("error",err.message); else setStatus("saved");
+  renderPlanner();
+}
+
+// ── RENDER PLANNER ────────────────────────────────────────────────────
 function renderPlanner(){
   const search=(document.getElementById("pl-search")?.value||"").toLowerCase();
   const srcF=(document.getElementById("pl-src")?.value||"").toLowerCase();
   const staF=document.getElementById("pl-sta")?.value||"";
   const todayK=today_key();
+  const planMonths=getPlanMonths(PLAN_PERIOD);
+  const saKey=getSAKey(PLAN_PERIOD);
+  const saLabel=PLAN_PERIOD==="sa2"?"SA2 Deadline":"SA3 Deadline";
 
   // Filter DAT rows
   const reqs=REQS.filter(r=>{
     if(r.type!=="DAT") return false;
-    const st=STATE[r.id]||{};
     if(srcF && (r.source||"").toLowerCase().indexOf(srcF)<0) return false;
+    const st=STATE[r.id]||{};
     if(staF && (st.status||"Not Yet Assessed")!==staF) return false;
     if(search){
       const hay=(r.clause_ref+" "+r.description+" "+(st.notes||"")).toLowerCase();
@@ -1092,14 +1204,17 @@ function renderPlanner(){
     return true;
   });
 
-  // Bucket by month
-  const buckets={}; // "YYYY-MM" or "backlog"
-  reqs.forEach(r=>{
+  // Separate Compliant (Done) from active
+  const doneReqs=reqs.filter(r=>(STATE[r.id]?.status||"Not Yet Assessed")==="Compliant");
+  const activeReqs=reqs.filter(r=>(STATE[r.id]?.status||"Not Yet Assessed")!=="Compliant");
+
+  // Bucket active items by month
+  const buckets={};
+  activeReqs.forEach(r=>{
     const st=STATE[r.id]||{};
     const dd=st.dueDate||"";
     const k=dd.length>=7?monthKey(dd):null;
-    // Check if this month is in our range
-    const inRange=k && PLAN_MONTHS.some(m=>monthKey(m)===k);
+    const inRange=k && planMonths.some(m=>monthKey(m)===k);
     const bucket=inRange?k:"backlog";
     if(!buckets[bucket]) buckets[bucket]=[];
     buckets[bucket].push(r);
@@ -1109,60 +1224,89 @@ function renderPlanner(){
   const grid=document.getElementById("planner-grid");
   grid.innerHTML="";
 
-  // Backlog column first
-  const backlogReqs=buckets["backlog"]||[];
+  // Backlog column
+  const backlog=buckets["backlog"]||[];
   grid.appendChild(makePlanCol("backlog","📥 Backlog",
-    `${backlogReqs.length} unscheduled`,backlogReqs,false,false,todayK));
+    `${backlog.length} unscheduled`,backlog,false,false,todayK,saKey,saLabel));
 
   // Month columns
-  PLAN_MONTHS.forEach(m=>{
+  planMonths.forEach(m=>{
     const k=monthKey(m);
-    const isSA2=k===SA2_KEY;
+    const isSA=k===saKey;
     const isCur=k===todayK;
     const mReqs=buckets[k]||[];
     const label=MONTH_NAMES[m.getMonth()]+" "+m.getFullYear();
     grid.appendChild(makePlanCol(k,label,
-      mReqs.length+" item"+(mReqs.length===1?"":"s"),mReqs,isSA2,isCur,todayK));
+      mReqs.length+" item"+(mReqs.length===1?"":"s"),mReqs,isSA,isCur,todayK,saKey,saLabel));
   });
+
+  // Done column — always last
+  grid.appendChild(makeDoneCol(doneReqs));
 }
 
-function makePlanCol(colKey,title,subtitle,reqs,isSA2,isCur,todayK){
+function makeDoneCol(reqs){
+  const col=document.createElement("div");
+  col.className="pl-col done-col";
+  col.innerHTML=`<div class="pl-col-head">
+    <div class="pl-month">✅ Done</div>
+    <div class="pl-count">${reqs.length} compliant</div>
+    <div class="pl-sa2-tag" style="background:#d1fae5;color:#065f46">No action needed</div>
+  </div>
+  <div class="pl-cards" style="overflow-y:auto"></div>`;
+  const cardsEl=col.querySelector(".pl-cards");
+  if(reqs.length===0){
+    cardsEl.innerHTML=`<div class="pl-empty">No compliant items yet</div>`;
+  } else {
+    reqs.forEach(r=>{
+      const srcCls=r.source==="SR-01"?"src-sr01":"src-iso";
+      const card=document.createElement("div");
+      card.className="pl-card done-card c-compliant";
+      card.innerHTML=`
+        <div class="pc-clause">
+          <span class="badge pc-src ${srcCls}">${r.source||"ISO"}</span>${r.clause_ref||""}
+        </div>
+        <div class="pc-desc">${(r.description||"").substring(0,80)}…</div>
+        <span class="pc-urgent pc-urg-done">✅ Compliant</span>`;
+      card.addEventListener("dblclick",()=>{
+        switchTab("tracker");
+        setTimeout(()=>{const row=document.getElementById("tr-"+r.id);
+          if(row){row.scrollIntoView({behavior:"smooth",block:"center"});
+            const btn=document.getElementById("xbtn-"+r.id);
+            if(btn&&!btn.classList.contains("open")) btn.click();}},200);
+      });
+      cardsEl.appendChild(card);
+    });
+  }
+  return col;
+}
+
+function makePlanCol(colKey,title,subtitle,reqs,isSA,isCur,todayK,saKey,saLabel){
   const col=document.createElement("div");
   col.className="pl-col"+(colKey==="backlog"?" backlog":"")+
-    (isSA2?" sa2-month":"")+(isCur?" current-month":"");
-  col.dataset.col=colKey;
+    (isSA?" sa2-month":"")+(isCur?" current-month":"");
 
-  const headCls=isSA2?" sa2":isCur?" cur":"";
-  const sa2tag=isSA2?`<div class="pl-sa2-tag">⚠️ SA2 Deadline</div>`:"";
+  const headCls=isSA?" sa2":isCur?" cur":"";
+  const saTag=isSA?`<div class="pl-sa2-tag">⚠️ ${saLabel}</div>`:"";
   const curTag=isCur?`<div class="pl-sa2-tag" style="background:#dbeafe;color:#1e40af">▶ This Month</div>`:"";
 
   col.innerHTML=`<div class="pl-col-head">
     <div class="pl-month${headCls}">${title}</div>
-    <div class="pl-count">${subtitle}</div>
-    ${sa2tag}${curTag}
+    <div class="pl-count">${subtitle}</div>${saTag}${curTag}
   </div>
   <div class="pl-cards" data-col="${colKey}"></div>`;
 
   const cardsEl=col.querySelector(".pl-cards");
-
-  // Drag-over highlight
   cardsEl.addEventListener("dragover",e=>{e.preventDefault();cardsEl.classList.add("drag-over");});
   cardsEl.addEventListener("dragleave",()=>cardsEl.classList.remove("drag-over"));
   cardsEl.addEventListener("drop",async e=>{
     e.preventDefault(); cardsEl.classList.remove("drag-over");
     if(!dragRid) return;
-    // Calculate new due_date
-    let newDate="";
-    if(colKey!=="backlog"){
-      // Set to first day of that month
-      newDate=colKey+"-01";
-    }
+    const newDate=colKey!=="backlog"?colKey+"-01":"";
     STATE[dragRid]=STATE[dragRid]||{};
     STATE[dragRid].dueDate=newDate;
-    // Update Supabase
     setStatus("saving");
     const {error}=await db.from("row_state").upsert({
-      row_id:dragRid,due_date:newDate,
+      row_id:dragRid, due_date:newDate,
       status:STATE[dragRid].status||"Not Yet Assessed",
       owner:STATE[dragRid].owner||"",
       last_reviewed:STATE[dragRid].lastReviewed||"",
@@ -1170,11 +1314,19 @@ function makePlanCol(colKey,title,subtitle,reqs,isSA2,isCur,todayK){
       updated_at:new Date().toISOString()
     },{onConflict:"row_id"});
     if(error) setStatus("error",error.message); else setStatus("saved");
-    dragRid=null;
-    renderPlanner();
+    dragRid=null; renderPlanner();
   });
 
-  // Add cards
+  // Urgency badge helper
+  function urgBadge(status){
+    const m={"Non-Compliant":["pc-urg-nc","🔴 Urgent"],
+      "Partially Compliant":["pc-urg-par","⚠️ In Progress"],
+      "Under Review":["pc-urg-rev","📋 In Review"],
+      "Not Yet Assessed":["pc-urg-nya","⬜ Plan This"]};
+    const [cls,lbl]=m[status]||["pc-urg-nya","⬜ Plan This"];
+    return `<span class="pc-urgent ${cls}">${lbl}</span>`;
+  }
+
   if(reqs.length===0){
     cardsEl.innerHTML=`<div class="pl-empty">Drop requirements here</div>`;
   } else {
@@ -1184,29 +1336,25 @@ function makePlanCol(colKey,title,subtitle,reqs,isSA2,isCur,todayK){
       const srcCls=r.source==="SR-01"?"src-sr01":"src-iso";
       const card=document.createElement("div");
       card.className=`pl-card ${cardColor(status)}`;
-      card.draggable=true;
-      card.dataset.rid=r.id;
+      card.draggable=true; card.dataset.rid=r.id;
       card.innerHTML=`
         <div class="pc-clause">
           <span class="badge pc-src ${srcCls}">${r.source||"ISO"}</span>${r.clause_ref||""}
         </div>
         <div class="pc-desc">${(r.description||"").substring(0,90)}…</div>
-        <div class="pc-status" style="color:${statusColor(status)}">${cardStatusLabel(status)}</div>
+        ${urgBadge(status)}
         ${st.owner?`<div class="pc-owner">👤 ${st.owner}</div>`:""}`;
       card.addEventListener("dragstart",e=>{
         dragRid=r.id; card.classList.add("dragging");
         e.dataTransfer.effectAllowed="move";
       });
       card.addEventListener("dragend",()=>{card.classList.remove("dragging");});
-      // Click to open detail panel in tracker tab
       card.addEventListener("dblclick",()=>{
         switchTab("tracker");
-        setTimeout(()=>{
-          const row=document.getElementById("tr-"+r.id);
+        setTimeout(()=>{const row=document.getElementById("tr-"+r.id);
           if(row){row.scrollIntoView({behavior:"smooth",block:"center"});
             const btn=document.getElementById("xbtn-"+r.id);
-            if(btn&&!btn.classList.contains("open")) btn.click();}
-        },200);
+            if(btn&&!btn.classList.contains("open")) btn.click();}},200);
       });
       cardsEl.appendChild(card);
     });
@@ -1214,6 +1362,11 @@ function makePlanCol(colKey,title,subtitle,reqs,isSA2,isCur,todayK){
   return col;
 }
 
+function cardColor(status){
+  const m={"Compliant":"c-compliant","Partially Compliant":"c-partial",
+    "Non-Compliant":"c-nonconform","Not Yet Assessed":"c-notyet","Under Review":"c-review"};
+  return m[status]||"c-notyet";
+}
 function statusColor(s){
   const m={"Compliant":"#065f46","Partially Compliant":"#92400e",
     "Non-Compliant":"#991b1b","Under Review":"#1e40af"};
