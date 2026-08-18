@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: iso17025-tracker
+    env: static
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
