@@ -50,7 +50,9 @@ a{color:#1a56db}
 /* KPI BAR */
 #kpi-bar{display:flex;flex-wrap:wrap;gap:10px;padding:13px 22px;background:#fff;border-bottom:1px solid #e2e8f0}
 .kpi{flex:1;min-width:108px;border:1px solid #e2e8f0;border-radius:8px;
-  padding:10px 13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  padding:10px 13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.kpi:hover{box-shadow:0 3px 10px rgba(0,0,0,.13)}
+.kpi.kpi-active{box-shadow:0 0 0 2.5px currentColor;border-color:currentColor;background:#f0f9ff}
 .kpi .num{font-size:24px;font-weight:800;line-height:1}
 .kpi .lbl{font-size:10px;font-weight:600;margin-top:4px;opacity:.72}
 .kpi.total .num{color:#1e3a5f}
@@ -336,13 +338,13 @@ tr.detail-row.open{display:table-row}
 
 <!-- KPI BAR -->
 <div id="kpi-bar">
-  <div class="kpi total">    <div class="num" id="k-tot">—</div><div class="lbl">Total</div></div>
-  <div class="kpi compliant"><div class="num" id="k-ok">—</div> <div class="lbl">✅ Compliant</div></div>
-  <div class="kpi partial">  <div class="num" id="k-par">—</div><div class="lbl">⚠️ Partial</div></div>
-  <div class="kpi nonconform"><div class="num" id="k-nc">—</div><div class="lbl">❌ Non-Compliant</div></div>
-  <div class="kpi notyet">   <div class="num" id="k-nya">—</div><div class="lbl">⬜ Not Assessed</div></div>
-  <div class="kpi review">   <div class="num" id="k-rev">—</div><div class="lbl">📋 Under Review</div></div>
-  <div class="kpi atrisk">   <div class="num" id="k-risk">—</div><div class="lbl">🔴 Evidence at Risk</div></div>
+  <div class="kpi total" id="kpi-total" onclick='filterByKpi("")' title="Show all requirements"><div class="num" id="k-tot">—</div><div class="lbl">Total</div></div>
+  <div class="kpi compliant" id="kpi-compliant" onclick='filterByKpi("Compliant")' title="Filter: Compliant"><div class="num" id="k-ok">—</div><div class="lbl">✅ Compliant</div></div>
+  <div class="kpi partial" id="kpi-partial" onclick='filterByKpi("Partially Compliant")' title="Filter: Partially Compliant"><div class="num" id="k-par">—</div><div class="lbl">⚠️ Partial</div></div>
+  <div class="kpi nonconform" id="kpi-nonconform" onclick='filterByKpi("Non-Compliant")' title="Filter: Non-Compliant"><div class="num" id="k-nc">—</div><div class="lbl">❌ Non-Compliant</div></div>
+  <div class="kpi notyet" id="kpi-notyet" onclick='filterByKpi("Not Yet Assessed")' title="Filter: Not Yet Assessed"><div class="num" id="k-nya">—</div><div class="lbl">⬜ Not Assessed</div></div>
+  <div class="kpi review" id="kpi-review" onclick='filterByKpi("Under Review")' title="Filter: Under Review"><div class="num" id="k-rev">—</div><div class="lbl">📋 Under Review</div></div>
+  <div class="kpi atrisk" id="kpi-atrisk" onclick='filterByKpi("risk")' title="Filter: Evidence at Risk"><div class="num" id="k-risk">—</div><div class="lbl">🔴 Evidence at Risk</div></div>
 </div>
 
 <!-- FILTER BAR -->
@@ -643,6 +645,7 @@ function render(filteredIds){
     tbody.appendChild(dtr);
   });
   updateKPIs(filteredIds);
+  syncKpiActive();
 }
 
 // ── DETAIL PANEL ──────────────────────────────────────────────────────
@@ -889,6 +892,37 @@ async function removeFile(rid,id){
 function refreshFiles(rid){const el=document.getElementById("ev-files-"+rid);if(el) el.innerHTML=buildFilesHtml(rid,EV[rid]?.files||[]);}
 
 // ── KPI ───────────────────────────────────────────────────────────────
+function filterByKpi(val){
+  const cur=document.getElementById("f-sta").value;
+  const riskOn=RISK_FILTER;
+  if(val==="risk"){
+    RISK_FILTER=!riskOn;
+    document.getElementById("btn-risk").classList.toggle("on",RISK_FILTER);
+    if(RISK_FILTER) document.getElementById("f-sta").value="";
+  } else if(val===cur&&!riskOn){
+    document.getElementById("f-sta").value="";
+  } else {
+    RISK_FILTER=false;
+    document.getElementById("btn-risk").classList.remove("on");
+    document.getElementById("f-sta").value=val;
+  }
+  applyFilters();
+  syncKpiActive();
+}
+function syncKpiActive(){
+  const sta=document.getElementById("f-sta").value;
+  const staMap={"Compliant":"compliant","Partially Compliant":"partial",
+    "Non-Compliant":"nonconform","Not Yet Assessed":"notyet","Under Review":"review"};
+  ["total","compliant","partial","nonconform","notyet","review","atrisk"].forEach(k=>{
+    const el=document.getElementById("kpi-"+k);
+    if(!el) return;
+    let active=false;
+    if(k==="atrisk") active=RISK_FILTER;
+    else if(k==="total") active=(!sta&&!RISK_FILTER);
+    else active=(staMap[sta]===k&&!RISK_FILTER);
+    el.classList.toggle("kpi-active",active);
+  });
+}
 function updateKPIs(filteredIds){
   let tot=0,ok=0,par=0,nc=0,nya=0,rev=0,risk=0;
   REQS.forEach(r=>{
