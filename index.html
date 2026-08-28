@@ -295,7 +295,7 @@ tr.detail-row.open{display:table-row}
   <div class="hbtns">
     <div class="tab-btns">
       <button class="tab-btn active" id="tab-tracker" onclick="switchTab('tracker')">📋 Tracker</button>
-      <button class="tab-btn" id="tab-planner" onclick="switchTab('planner')">📅 Planner</button>
+      <!-- Planner tab removed — may re-enable in a future update -->
     </div>
     <div id="sa-ctrl">
       <span class="sa-lbl">Next SA:</span>
@@ -371,35 +371,7 @@ tr.detail-row.open{display:table-row}
   <button id="btn-clr" onclick="clearFilters()">✕ Clear</button>
 </div>
 
-<!-- PLANNER VIEW -->
-<div id="planner-view">
-  <div id="planner-toolbar">
-    <div class="period-btns">
-      <button class="period-btn active" id="pb-sa2" onclick="switchPeriod('sa2')">→ SA2 (2026–27)</button>
-      <button class="period-btn" id="pb-sa3" onclick="switchPeriod('sa3')">→ SA3 (2027–28)</button>
-    </div>
-    <button class="btn-auto-sched" onclick="autoSchedule()">🗓 Auto-Schedule</button>
-    <span style="font-size:13px;margin-left:4px">🔍</span>
-    <input type="text" class="pl-search" id="pl-search" placeholder="Filter requirements…" oninput="renderPlanner()"/>
-    <select id="pl-src" onchange="renderPlanner()">
-      <option value="">All Sources</option>
-      <option>ISO 17025</option><option>SR-01</option>
-    </select>
-    <select id="pl-sta" onchange="renderPlanner()">
-      <option value="">All Statuses</option>
-      <option>Compliant</option><option>Partially Compliant</option>
-      <option>Non-Compliant</option><option>Not Yet Assessed</option><option>Under Review</option>
-    </select>
-    <div class="pl-legend">
-      <div class="pl-leg-item"><div class="pl-leg-dot" style="background:#10b981"></div>Compliant</div>
-      <div class="pl-leg-item"><div class="pl-leg-dot" style="background:#f59e0b"></div>Partial</div>
-      <div class="pl-leg-item"><div class="pl-leg-dot" style="background:#ef4444"></div>Non-Compliant</div>
-      <div class="pl-leg-item"><div class="pl-leg-dot" style="background:#3b82f6"></div>Under Review</div>
-      <div class="pl-leg-item"><div class="pl-leg-dot" style="background:#cbd5e1"></div>Not Assessed</div>
-    </div>
-  </div>
-  <div id="planner-grid"></div>
-</div>
+<!-- Planner view removed — may re-enable in a future update -->
 
 <!-- TABLE (tracker view) -->
 <div id="tracker-view">
@@ -432,6 +404,7 @@ let REQS        = [];
 let STATE       = {};
 let EV          = {};      // {rowId: {links,files}} — lazy
 let EV_EXPIRY   = {};      // {rowId: "expired"|"before-sa"|"ok"} from upfront scan
+let EV_COUNT    = {};      // {rowId: N} — upfront evidence count for badge display
 let NEXT_SA_DATE = "";
 let openId      = null;
 let timers      = {};
@@ -462,6 +435,7 @@ function buildExpiryMap(links, files) {
   });
 }
 async function refreshExpiryMap() {
+  // Fetch only expiry-dated items (for the expiry map); EV_COUNT is maintained incrementally
   const [{ data: lk }, { data: fi }] = await Promise.all([
     db.from("evidence_links").select("id,row_id,expiry_date").neq("expiry_date",""),
     db.from("attached_files").select("id,row_id,expiry_date").neq("expiry_date","")
@@ -489,8 +463,14 @@ function rowExpiryDot(rid) {
   return `<span title="${tip}" style="font-size:12px;margin-left:3px">${dot}</span>`;
 }
 function evBadge(rid){
-  const ev=EV[rid]||{links:[],files:[]};
-  const n=(ev.links||[]).length+(ev.files||[]).length;
+  // Use live EV data if loaded, otherwise fall back to upfront count from init
+  let n;
+  if(EV[rid]){
+    const ev=EV[rid];
+    n=(ev.links||[]).length+(ev.files||[]).length;
+  } else {
+    n=EV_COUNT[rid]||0;
+  }
   if(!n) return "";
   return `<span class="ev-dot" title="${n} evidence item${n>1?'s':''} attached">📎 ${n}</span>`;
 }
@@ -531,12 +511,13 @@ async function init() {
   }
   REQS = reqs;
 
-  // Load states + settings + expiry scan in parallel
-  const [{data:states},{data:settingsData},{data:lkExp},{data:fiExp}] = await Promise.all([
+  // Load states + settings + full evidence scan in parallel
+  // We fetch ALL evidence rows (id + row_id) for the count badge, plus expiry_date for the expiry map
+  const [{data:states},{data:settingsData},{data:allLk},{data:allFi}] = await Promise.all([
     db.from("row_state").select("*"),
     db.from("settings").select("*").then(r=>r).catch(()=>({data:[]})),
-    db.from("evidence_links").select("id,row_id,expiry_date").neq("expiry_date",""),
-    db.from("attached_files").select("id,row_id,expiry_date").neq("expiry_date","")
+    db.from("evidence_links").select("id,row_id,expiry_date"),
+    db.from("attached_files").select("id,row_id,expiry_date")
   ]);
 
   // Settings
@@ -553,8 +534,16 @@ async function init() {
     if(!STATE[r.id]) STATE[r.id]={status:"Not Yet Assessed",owner:"",dueDate:"",lastReviewed:"",notes:""};
   });
 
-  // Expiry map
-  buildExpiryMap(lkExp, fiExp);
+  // Expiry map — use only items that have an expiry_date set
+  buildExpiryMap(
+    (allLk||[]).filter(l=>l.expiry_date),
+    (allFi||[]).filter(f=>f.expiry_date)
+  );
+
+  // Evidence count map — all items (for badge display before lazy-load)
+  EV_COUNT = {};
+  (allLk||[]).forEach(lk=>{ EV_COUNT[lk.row_id]=(EV_COUNT[lk.row_id]||0)+1; });
+  (allFi||[]).forEach(fi=>{ EV_COUNT[fi.row_id]=(EV_COUNT[fi.row_id]||0)+1; });
 
   showLoading(false); setStatus("live");
   render(null);
@@ -633,7 +622,7 @@ function render(filteredIds){
       <td style="white-space:nowrap">${freqBadge(r.id)}</td>
       <td>${esc(r.description||"").substring(0,115)}${(r.description||"").length>115?"…":""}</td>
       <td style="font-size:11px">${esc(r.applicable_section)}</td>
-      <td id="sc-${r.id}">${statusBadge(st.status)}${rowExpiryDot(r.id)}</td>
+      <td id="sc-${r.id}">${statusBadge(st.status)}${rowExpiryDot(r.id)}${evBadge(r.id)}</td>
       <td id="oc-${r.id}" style="font-size:11px">${esc(st.owner)}</td>
       <td id="dc-${r.id}" style="font-size:11px">${esc(st.dueDate)}</td>`;
     tbody.appendChild(tr);
@@ -794,6 +783,7 @@ async function addLink(rid){
   if(error||!data) return;
   if(!EV[rid]) EV[rid]={links:[],files:[]};
   EV[rid].links.push(data[0]);
+  EV_COUNT[rid]=(EV_COUNT[rid]||0)+1;
   refreshLinks(rid);
   const sc_al=document.getElementById("sc-"+rid); if(sc_al) sc_al.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
 }
@@ -820,6 +810,7 @@ async function updateLinkExpiry(rid,id,val){
 async function removeLink(rid,id){
   await db.from("evidence_links").delete().eq("id",id);
   if(EV[rid]) EV[rid].links=EV[rid].links.filter(l=>l.id!==id);
+  if(EV_COUNT[rid]>0) EV_COUNT[rid]--;
   refreshLinks(rid); await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
   if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
@@ -841,6 +832,7 @@ document.getElementById("hidden-fi").addEventListener("change",async function(){
     if(error){setStatus("error",error.message);alert("Upload failed: "+error.message);return;}
     if(!EV[rid]) EV[rid]={links:[],files:[]};
     EV[rid].files.push(data[0]);
+    EV_COUNT[rid]=(EV_COUNT[rid]||0)+1;
     refreshFiles(rid);
     const sc_uf=document.getElementById("sc-"+rid); if(sc_uf) sc_uf.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
     setStatus("saved");
@@ -884,6 +876,7 @@ async function viewFile(id,name){
 async function removeFile(rid,id){
   await db.from("attached_files").delete().eq("id",id);
   if(EV[rid]) EV[rid].files=EV[rid].files.filter(f=>f.id!==id);
+  if(EV_COUNT[rid]>0) EV_COUNT[rid]--;
   refreshFiles(rid); await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
   if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
