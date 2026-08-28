@@ -140,6 +140,7 @@ tr.detail-row.open{display:table-row}
 .ev-open{font-size:11.5px}
 .btn-tiny{padding:3px 8px;border-radius:4px;font-size:11px;border:1px solid #e5e7eb;background:#f9fafb}
 .btn-view{background:#ede9fe;border-color:#c4b5fd;color:#5b21b6}.btn-view:hover{background:#ddd6fe}
+.ev-dot{display:inline-flex;align-items:center;gap:2px;background:#e0f2fe;color:#0369a1;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle}
 .btn-del{color:#dc2626;border-color:#fca5a5!important}
 .btn-add-link{padding:4px 10px;border:1px dashed #94a3b8;border-radius:4px;background:none;font-size:11.5px;color:#64748b;margin-right:8px}
 .btn-add-file{padding:4px 10px;border:1px dashed #7c3aed;border-radius:4px;background:#faf5ff;font-size:11.5px;color:#7c3aed}
@@ -485,6 +486,12 @@ function rowExpiryDot(rid) {
                 ok:"Evidence valid past next SA"}[s];
   return `<span title="${tip}" style="font-size:12px;margin-left:3px">${dot}</span>`;
 }
+function evBadge(rid){
+  const ev=EV[rid]||{links:[],files:[]};
+  const n=(ev.links||[]).length+(ev.files||[]).length;
+  if(!n) return "";
+  return `<span class="ev-dot" title="${n} evidence item${n>1?'s':''} attached">📎 ${n}</span>`;
+}
 
 // ── SAVE STATUS ───────────────────────────────────────────────────────
 function setStatus(state, msg) {
@@ -755,7 +762,7 @@ function buildFilesHtml(rid,files){
 function updateField(rid,field,val){
   if(!STATE[rid]) STATE[rid]={status:"Not Yet Assessed",owner:"",dueDate:"",lastReviewed:"",notes:""};
   STATE[rid][field]=val;
-  if(field==="status"){ const c=document.getElementById("sc-"+rid); if(c) c.innerHTML=statusBadge(val)+rowExpiryDot(rid); updateKPIs(null); }
+  if(field==="status"){ const c=document.getElementById("sc-"+rid); if(c) c.innerHTML=statusBadge(val)+rowExpiryDot(rid)+evBadge(rid); updateKPIs(null); }
   if(field==="owner") { const c=document.getElementById("oc-"+rid); if(c) c.textContent=val; }
   if(field==="dueDate"){ const c=document.getElementById("dc-"+rid); if(c) c.textContent=val; }
   schedSave(rid);
@@ -785,6 +792,7 @@ async function addLink(rid){
   if(!EV[rid]) EV[rid]={links:[],files:[]};
   EV[rid].links.push(data[0]);
   refreshLinks(rid);
+  const sc_al=document.getElementById("sc-"+rid); if(sc_al) sc_al.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
 }
 function updateLinkField(id,field,val){
   clearTimeout(timers["lk_"+id]);
@@ -796,7 +804,7 @@ async function updateLinkExpiry(rid,id,val){
   await db.from("evidence_links").update({expiry_date:val}).eq("id",id);
   await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
-  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid);
+  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
   // Refresh badge in panel
   const lkEl=document.getElementById("lk-"+id);
   if(lkEl){
@@ -811,7 +819,7 @@ async function removeLink(rid,id){
   if(EV[rid]) EV[rid].links=EV[rid].links.filter(l=>l.id!==id);
   refreshLinks(rid); await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
-  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid);
+  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
   updateKPIs(null);
 }
 function refreshLinks(rid){const el=document.getElementById("ev-links-"+rid);if(el) el.innerHTML=buildLinksHtml(rid,EV[rid]?.links||[]);}
@@ -830,7 +838,9 @@ document.getElementById("hidden-fi").addEventListener("change",async function(){
     if(error){setStatus("error",error.message);alert("Upload failed: "+error.message);return;}
     if(!EV[rid]) EV[rid]={links:[],files:[]};
     EV[rid].files.push(data[0]);
-    refreshFiles(rid); setStatus("saved");
+    refreshFiles(rid);
+    const sc_uf=document.getElementById("sc-"+rid); if(sc_uf) sc_uf.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
+    setStatus("saved");
   };
   reader.readAsDataURL(file);
 });
@@ -839,7 +849,7 @@ async function updateFileExpiry(rid,id,val){
   await db.from("attached_files").update({expiry_date:val}).eq("id",id);
   await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
-  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid);
+  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
   updateKPIs(null);
 }
 async function downloadFile(id,name){
@@ -873,7 +883,7 @@ async function removeFile(rid,id){
   if(EV[rid]) EV[rid].files=EV[rid].files.filter(f=>f.id!==id);
   refreshFiles(rid); await refreshExpiryMap();
   const sc=document.getElementById("sc-"+rid);
-  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid);
+  if(sc) sc.innerHTML=statusBadge((STATE[rid]||{}).status||"Not Yet Assessed")+rowExpiryDot(rid)+evBadge(rid);
   updateKPIs(null);
 }
 function refreshFiles(rid){const el=document.getElementById("ev-files-"+rid);if(el) el.innerHTML=buildFilesHtml(rid,EV[rid]?.files||[]);}
