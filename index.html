@@ -281,9 +281,117 @@ tr.detail-row.open{display:table-row}
   #topbar,thead,tr.hdr-iso td,tr.hdr-sr01 td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 #hidden-fi{display:none}
+
+/* ── AUTH GATE ── */
+#auth-gate{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);
+  z-index:9999;display:flex;align-items:center;justify-content:center}
+#auth-gate.hidden{display:none}
+.auth-card{background:#fff;border-radius:16px;padding:40px 44px;width:360px;
+  box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center}
+.auth-card .ac-logo{font-size:36px;margin-bottom:12px}
+.auth-card h2{font-size:18px;font-weight:800;color:#1e3a5f;margin-bottom:4px}
+.auth-card .ac-sub{font-size:12px;color:#64748b;margin-bottom:24px;line-height:1.5}
+.auth-card input[type=password]{width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;
+  border-radius:8px;font-size:15px;text-align:center;letter-spacing:3px;outline:none;
+  margin-bottom:12px;font-family:Arial,sans-serif}
+.auth-card input[type=password]:focus{border-color:#2d5f8a;box-shadow:0 0 0 3px rgba(45,95,138,.15)}
+.auth-card .btn-unlock{width:100%;padding:11px;border:none;border-radius:8px;
+  background:linear-gradient(135deg,#1e3a5f,#2d5f8a);color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.auth-card .btn-unlock:hover{opacity:.88}
+#auth-err{color:#dc2626;font-size:11.5px;margin-top:8px;min-height:16px}
+
+/* ── SESSION EXPIRY MODAL ── */
+#session-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+  z-index:9000;display:flex;align-items:center;justify-content:center}
+#session-modal.hidden{display:none}
+.sm-card{background:#fff;border-radius:14px;padding:32px 36px;width:340px;
+  box-shadow:0 16px 50px rgba(0,0,0,.35);text-align:center}
+.sm-card .sm-icon{font-size:32px;margin-bottom:10px}
+.sm-card h3{font-size:16px;font-weight:800;color:#1e3a5f;margin-bottom:8px}
+.sm-card p{font-size:12.5px;color:#475569;margin-bottom:6px}
+.sm-card .sm-countdown{font-size:28px;font-weight:800;color:#dc2626;margin:10px 0 20px}
+.sm-btns{display:flex;gap:10px}
+.sm-btns button{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-stay{background:linear-gradient(135deg,#1e3a5f,#2d5f8a);color:#fff}
+.btn-stay:hover{opacity:.9}
+.btn-signout{background:#f1f5f9;color:#475569}
+.btn-signout:hover{background:#e2e8f0}
+
+/* ── CHANGE PASSWORD MODAL ── */
+#pwd-change-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8500;
+  display:flex;align-items:center;justify-content:center}
+#pwd-change-modal.hidden{display:none}
+.pcm-card{background:#fff;border-radius:12px;padding:28px 32px;width:330px;
+  box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.pcm-card h3{font-size:15px;font-weight:700;color:#1e3a5f;margin-bottom:16px}
+.pcm-card label{font-size:10.5px;font-weight:700;color:#64748b;display:block;
+  margin-bottom:4px;margin-top:12px;text-transform:uppercase;letter-spacing:.5px}
+.pcm-card label:first-of-type{margin-top:0}
+.pcm-card input{width:100%;padding:7px 10px;border:1.5px solid #cbd5e1;
+  border-radius:6px;font-size:13px;outline:none;font-family:Arial,sans-serif}
+.pcm-card input:focus{border-color:#2d5f8a}
+#pce-err{color:#dc2626;font-size:11px;margin-top:8px;min-height:14px}
+.pcm-btns{display:flex;gap:8px;margin-top:18px}
+.pcm-btns button{flex:1;padding:8px;border:none;border-radius:6px;
+  font-size:12px;font-weight:700;cursor:pointer}
+.btn-pcm-save{background:#1e3a5f;color:#fff}
+.btn-pcm-save:hover{background:#2d5f8a}
+.btn-pcm-cancel{background:#f1f5f9;color:#475569}
+.btn-pcm-cancel:hover{background:#e2e8f0}
+.btn-lock{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.btn-lock:hover{background:rgba(255,255,255,.25)}
 </style>
 </head>
 <body>
+
+<!-- AUTH GATE — shown when a password is set and session has not been established -->
+<div id="auth-gate" class="hidden">
+  <div class="auth-card">
+    <div class="ac-logo">🔒</div>
+    <h2>QMS Compliance Tracker</h2>
+    <p class="ac-sub">ISO/IEC 17025:2017 · AOSC SR-01<br>Enter the password to continue.</p>
+    <input type="password" id="auth-pwd-input" placeholder="Password"
+      onkeydown="if(event.key==='Enter')tryLogin()"/>
+    <button class="btn-unlock" onclick="tryLogin()">Unlock →</button>
+    <div id="auth-err"></div>
+  </div>
+</div>
+
+<!-- SESSION EXPIRY WARNING — appears 5 min before the 1-hour session ends -->
+<div id="session-modal" class="hidden">
+  <div class="sm-card">
+    <div class="sm-icon">⏱</div>
+    <h3>Your session is about to expire</h3>
+    <p>You will be signed out automatically in</p>
+    <div class="sm-countdown" id="session-countdown">5:00</div>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:0">Do you want to stay signed in?</p>
+    <div class="sm-btns" style="margin-top:16px">
+      <button class="btn-stay" onclick="staySignedIn()">✅ Stay Signed In</button>
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="pwd-change-modal" class="hidden">
+  <div class="pcm-card">
+    <h3>🔒 Password Settings</h3>
+    <div id="pcm-cur-wrap">
+      <label>Current Password</label>
+      <input type="password" id="pce-cur" placeholder="Enter current password"/>
+    </div>
+    <label>New Password <span style="font-weight:400;color:#94a3b8">(leave blank to remove)</span></label>
+    <input type="password" id="pce-new" placeholder="New password"/>
+    <label>Confirm New Password</label>
+    <input type="password" id="pce-con" placeholder="Repeat new password"/>
+    <div id="pce-err"></div>
+    <div class="pcm-btns">
+      <button class="btn-pcm-cancel" onclick="closePwdChangeModal()">Cancel</button>
+      <button class="btn-pcm-save" onclick="savePwdChange()">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- TOP BAR -->
 <div id="topbar">
@@ -306,6 +414,7 @@ tr.detail-row.open{display:table-row}
     <div id="save-status">🔄 Connecting…</div>
     <button class="hbtn btn-export" onclick="exportExcel()">📊 Export Excel</button>
     <button class="hbtn btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    <button class="hbtn btn-lock" onclick="openPwdChangeModal()" title="Set or change access password">🔒 Password</button>
   </div>
 </div>
 
@@ -400,16 +509,18 @@ const FREQ      = {"R1": "Change-Triggered", "R67": "Change-Triggered", "R2": "C
 
 // ── GLOBALS ──────────────────────────────────────────────────────────
 let db;
-let REQS        = [];
-let STATE       = {};
-let EV          = {};      // {rowId: {links,files}} — lazy
-let EV_EXPIRY   = {};      // {rowId: "expired"|"before-sa"|"ok"} from upfront scan
-let EV_COUNT    = {};      // {rowId: N} — upfront evidence count for badge display
+let REQS         = [];
+let STATE        = {};
+let EV           = {};      // {rowId: {links,files}} — lazy
+let EV_EXPIRY    = {};      // {rowId: "expired"|"before-sa"|"ok"} from upfront scan
+let EV_COUNT     = {};      // {rowId: N} — upfront evidence count for badge display
 let NEXT_SA_DATE = "";
-let openId      = null;
-let timers      = {};
-let _fileTarget = null;
-let RISK_FILTER = false;
+let openId       = null;
+let timers       = {};
+let _fileTarget  = null;
+let RISK_FILTER  = false;
+let APP_PWD_HASH = null;   // SHA-256 hash of app password, loaded from Supabase settings
+let _initCache   = null;   // holds {states,allLk,allFi} fetched before auth to avoid re-fetch
 
 // ── EXPIRY HELPERS ────────────────────────────────────────────────────
 function expiryStatus(dateStr) {
@@ -475,6 +586,152 @@ function evBadge(rid){
   return `<span class="ev-dot" title="${n} evidence item${n>1?'s':''} attached">📎 ${n}</span>`;
 }
 
+// ── AUTH ──────────────────────────────────────────────────────────────
+const AUTH_SS_KEY = 'qms_online_auth';
+const SESSION_MS  = 60 * 60 * 1000;  // 1 hour total session
+const WARN_MS     = 55 * 60 * 1000;  // warn 5 min before expiry
+let _sessionTimer = null;
+let _warnTimer    = null;
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function getSession() {
+  try {
+    const raw = sessionStorage.getItem(AUTH_SS_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s.ok || !s.loginAt) return null;
+    if(Date.now() - s.loginAt >= SESSION_MS) {
+      sessionStorage.removeItem(AUTH_SS_KEY); return null;
+    }
+    return s;
+  } catch(_) { return null; }
+}
+
+function saveSession() {
+  sessionStorage.setItem(AUTH_SS_KEY, JSON.stringify({ok:true, loginAt:Date.now()}));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(AUTH_SS_KEY);
+  clearTimeout(_sessionTimer); clearTimeout(_warnTimer);
+  clearInterval(window._countdownInterval);
+  _sessionTimer = null; _warnTimer = null;
+}
+
+function showAuthGate() {
+  document.getElementById('auth-gate').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('auth-pwd-input').focus(), 120);
+}
+
+function hideAuthGate() {
+  document.getElementById('auth-gate').classList.add('hidden');
+}
+
+async function tryLogin() {
+  const pwd   = document.getElementById('auth-pwd-input').value;
+  const errEl = document.getElementById('auth-err');
+  if(!pwd) { errEl.textContent='Please enter the password.'; return; }
+  const hash = await sha256(pwd);
+  if(hash === APP_PWD_HASH) {
+    document.getElementById('auth-pwd-input').value='';
+    errEl.textContent='';
+    saveSession();
+    hideAuthGate();
+    startSessionTimer(Date.now());
+    await loadAfterAuth();
+  } else {
+    errEl.textContent='Incorrect password. Try again.';
+    document.getElementById('auth-pwd-input').select();
+  }
+}
+
+function startSessionTimer(loginAt) {
+  clearTimeout(_sessionTimer); clearTimeout(_warnTimer);
+  clearInterval(window._countdownInterval);
+  const elapsed  = Date.now() - loginAt;
+  const warnIn   = Math.max(0, WARN_MS - elapsed);
+  const expireIn = Math.max(0, SESSION_MS - elapsed);
+  // If session already in warning window, show modal now
+  if(warnIn === 0 && expireIn > 0) { showSessionWarnModal(expireIn); }
+  else { _warnTimer = setTimeout(()=>showSessionWarnModal(SESSION_MS - WARN_MS), warnIn); }
+  _sessionTimer = setTimeout(doSignOut, expireIn);
+}
+
+function showSessionWarnModal(msLeft) {
+  const modal = document.getElementById('session-modal');
+  modal.classList.remove('hidden');
+  let secs = Math.floor((msLeft || (SESSION_MS - WARN_MS)) / 1000);
+  const cdEl = document.getElementById('session-countdown');
+  function tick() {
+    if(cdEl) cdEl.textContent = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+    if(secs > 0) { secs--; window._countdownInterval = setTimeout(tick, 1000); }
+  }
+  clearInterval(window._countdownInterval);
+  tick();
+}
+
+function staySignedIn() {
+  clearTimeout(window._countdownInterval);
+  document.getElementById('session-modal').classList.add('hidden');
+  saveSession();
+  startSessionTimer(Date.now());
+}
+
+function doSignOut() {
+  clearTimeout(window._countdownInterval);
+  document.getElementById('session-modal').classList.add('hidden');
+  clearSession();
+  // Hide tracker content, show gate
+  showAuthGate();
+}
+
+// ── CHANGE PASSWORD ───────────────────────────────────────────────────
+function openPwdChangeModal() {
+  document.getElementById('pce-cur').value='';
+  document.getElementById('pce-new').value='';
+  document.getElementById('pce-con').value='';
+  document.getElementById('pce-err').textContent='';
+  document.getElementById('pcm-cur-wrap').style.display=APP_PWD_HASH?'block':'none';
+  document.getElementById('pwd-change-modal').classList.remove('hidden');
+}
+
+function closePwdChangeModal() {
+  document.getElementById('pwd-change-modal').classList.add('hidden');
+}
+
+async function savePwdChange() {
+  const cur   = document.getElementById('pce-cur').value;
+  const nw    = document.getElementById('pce-new').value;
+  const con   = document.getElementById('pce-con').value;
+  const errEl = document.getElementById('pce-err');
+  if(APP_PWD_HASH) {
+    const curHash = await sha256(cur);
+    if(curHash !== APP_PWD_HASH) { errEl.textContent='Current password is incorrect.'; return; }
+  }
+  if(nw !== con) { errEl.textContent='New passwords do not match.'; return; }
+  setStatus("saving");
+  if(nw) {
+    const newHash = await sha256(nw);
+    const {error} = await db.from("settings")
+      .upsert({key:'app_password_hash', value:newHash},{onConflict:'key'});
+    if(error) { setStatus("error",error.message); errEl.textContent='Save failed: '+error.message; return; }
+    APP_PWD_HASH = newHash;
+    setStatus("saved"); closePwdChangeModal();
+    alert('✅ Password updated. It will be required on the next session.');
+  } else {
+    // Remove password entirely
+    const {error} = await db.from("settings").delete().eq('key','app_password_hash');
+    if(error) { setStatus("error",error.message); errEl.textContent='Save failed: '+error.message; return; }
+    APP_PWD_HASH = null;
+    setStatus("saved"); closePwdChangeModal();
+    alert('🔓 Password removed. The tracker is now open to anyone with the link.');
+  }
+}
+
 // ── SAVE STATUS ───────────────────────────────────────────────────────
 function setStatus(state, msg) {
   const el = document.getElementById("save-status");
@@ -511,8 +768,7 @@ async function init() {
   }
   REQS = reqs;
 
-  // Load states + settings + full evidence scan in parallel
-  // We fetch ALL evidence rows (id + row_id) for the count badge, plus expiry_date for the expiry map
+  // Fetch all data in parallel (includes settings with password hash)
   const [{data:states},{data:settingsData},{data:allLk},{data:allFi}] = await Promise.all([
     db.from("row_state").select("*"),
     db.from("settings").select("*").then(r=>r).catch(()=>({data:[]})),
@@ -520,11 +776,49 @@ async function init() {
     db.from("attached_files").select("id,row_id,expiry_date")
   ]);
 
-  // Settings
+  // Extract settings
   NEXT_SA_DATE = (settingsData||[]).find(s=>s.key==="next_sa_date")?.value || "2027-05-01";
+  APP_PWD_HASH = (settingsData||[]).find(s=>s.key==="app_password_hash")?.value || null;
   updateSaDateDisplay();
 
-  // State map
+  // Cache raw data so loadAfterAuth() can apply it without a second fetch
+  _initCache = {states, allLk, allFi};
+
+  // ── Auth check ───────────────────────────────────────────────────────
+  if(APP_PWD_HASH) {
+    const session = getSession();
+    if(!session) {
+      // No valid session — show login gate, do NOT render data yet
+      showLoading(false);
+      showAuthGate();
+      return;
+    }
+    // Valid session — restart the timer with remaining time
+    startSessionTimer(session.loginAt);
+  }
+
+  applyData(states, allLk, allFi);
+}
+
+// Called after successful login — applies already-fetched data without a second round-trip
+async function loadAfterAuth() {
+  showLoading(true);
+  if(_initCache) {
+    const {states, allLk, allFi} = _initCache;
+    applyData(states, allLk, allFi);
+  } else {
+    // Fallback: data was somehow lost — re-fetch
+    const [{data:states},{data:allLk},{data:allFi}] = await Promise.all([
+      db.from("row_state").select("*"),
+      db.from("evidence_links").select("id,row_id,expiry_date"),
+      db.from("attached_files").select("id,row_id,expiry_date")
+    ]);
+    applyData(states, allLk, allFi);
+  }
+}
+
+// Builds STATE, expiry map, evidence counts, then renders
+function applyData(states, allLk, allFi) {
   STATE = {};
   (states||[]).forEach(s=>{
     STATE[s.row_id]={status:s.status||"Not Yet Assessed",owner:s.owner||"",
@@ -534,13 +828,11 @@ async function init() {
     if(!STATE[r.id]) STATE[r.id]={status:"Not Yet Assessed",owner:"",dueDate:"",lastReviewed:"",notes:""};
   });
 
-  // Expiry map — use only items that have an expiry_date set
   buildExpiryMap(
     (allLk||[]).filter(l=>l.expiry_date),
     (allFi||[]).filter(f=>f.expiry_date)
   );
 
-  // Evidence count map — all items (for badge display before lazy-load)
   EV_COUNT = {};
   (allLk||[]).forEach(lk=>{ EV_COUNT[lk.row_id]=(EV_COUNT[lk.row_id]||0)+1; });
   (allFi||[]).forEach(fi=>{ EV_COUNT[fi.row_id]=(EV_COUNT[fi.row_id]||0)+1; });
