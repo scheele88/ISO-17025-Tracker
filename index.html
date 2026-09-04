@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;font-size:13px;background:#f0f2f5;color:#1a1a2e}
@@ -1563,13 +1563,18 @@ function freqBadge(rid){
 function switchTab(tab){
   const isDash = tab==="dashboard";
   const isTracker = tab==="tracker";
-  // Show/hide views
+  // Show/hide main views
   document.getElementById("dash-view").classList.toggle("active", isDash);
   document.getElementById("tracker-view").classList.toggle("hidden", !isTracker);
+  // Show/hide tracker-only chrome (KPI bar, filter bar, cycle panel)
+  ["kpi-bar","filter-bar","cycle-panel"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=isDash?"none":"";
+  });
   // Activate correct tab button
   document.getElementById("tab-tracker").classList.toggle("active", isTracker);
   document.getElementById("tab-dashboard").classList.toggle("active", isDash);
-  // Build dashboard on first open (or if stale)
+  // Build dashboard on switch (always rebuilds if stale)
   if(isDash) buildDashboard();
 }
 
@@ -2229,7 +2234,10 @@ function renderDashTable(rows){
 }
 
 function buildDashboard(){
-  if(typeof Chart === "undefined") return; // Chart.js not loaded yet
+  if(typeof Chart === "undefined"){
+    // Chart.js not ready yet — retry once after 800ms
+    setTimeout(buildDashboard, 800); return;
+  }
   _dashDirty = false; _dashBuilt = true;
   const staleMsg = document.getElementById("dash-stale-msg");
   if(staleMsg) staleMsg.style.display = "none";
