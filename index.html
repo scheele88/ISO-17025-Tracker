@@ -344,49 +344,77 @@ tr.detail-row.open{display:table-row}
 .btn-lock:hover{background:rgba(255,255,255,.25)}
 
 /* ── DASHBOARD ── */
-#dash-view{display:none;padding:0 0 30px}
+#dash-view{display:none;padding:0 0 40px}
 #dash-view.active{display:block}
-#dash-slicer{display:flex;flex-wrap:wrap;gap:8px;padding:12px 22px;
+#dash-header{padding:16px 24px 14px;border-bottom:2px solid #e2e8f0;background:#fff;
+  display:flex;justify-content:space-between;align-items:flex-end}
+.dh-left{}
+.dh-title{font-size:13.5px;font-weight:700;color:#1e293b;letter-spacing:-.2px}
+.dh-sub{font-size:10.5px;color:#94a3b8;margin-top:3px}
+.dh-right{text-align:right}
+.dh-cert{display:inline-block;font-size:10px;font-weight:600;color:#1d4ed8;
+  background:#eff6ff;border:1px solid #bfdbfe;padding:2px 9px;border-radius:2px;
+  letter-spacing:.3px;margin-bottom:4px}
+.dh-meta{font-size:10px;color:#94a3b8}
+
+#dash-slicer{display:flex;flex-wrap:wrap;gap:8px;padding:9px 24px;
   background:#f8fafc;border-bottom:1px solid #e2e8f0;align-items:center}
-#dash-slicer select{padding:5px 9px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;background:#fff}
-#dash-slicer .ds-label{font-size:11px;font-weight:700;color:#64748b;margin-right:2px}
-.btn-ds-reset{padding:5px 11px;border:1px solid #94a3b8;border-radius:5px;background:#fff;font-size:12px;cursor:pointer}
-#dash-kpis{display:flex;flex-wrap:wrap;gap:10px;padding:14px 22px}
-.dk-card{flex:1;min-width:120px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;
-  padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;
-  transition:box-shadow .15s,border-color .15s;border-left:3px solid transparent}
-.dk-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.13)}
-.dk-card.dk-active{box-shadow:0 0 0 2px #2d5f8a;border-color:#2d5f8a;background:#f0f7ff}
-.dk-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.dk-title{font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
-.dk-icon{font-size:18px}
-.dk-num{font-size:28px;font-weight:800;line-height:1}
-.dk-bar-bg{height:5px;background:#e2e8f0;border-radius:3px;margin-top:10px;overflow:hidden}
-.dk-bar-fg{height:100%;border-radius:3px;transition:width .6s}
-.dk-pct{font-size:10px;color:#94a3b8;margin-top:4px}
-.dash-charts-row{display:flex;flex-wrap:wrap;gap:12px;padding:0 22px 12px}
-.dash-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);flex:1;min-width:240px;position:relative}
-.dash-card-title{font-size:11.5px;font-weight:700;color:#374151;margin-bottom:12px;
-  display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f1f5f9;padding-bottom:8px}
-.dash-card-title .dc-sub{font-size:10px;font-weight:400;color:#94a3b8}
-.dash-card canvas{max-height:210px}
-#ch-gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:210px;gap:4px}
-.gauge-lbl{font-size:12.5px;font-weight:700;color:#64748b;margin-top:2px}
-#dash-detail{padding:0 22px 14px}
-#dash-detail-title{font-size:12.5px;font-weight:700;color:#374151;padding:10px 0 8px;
-  display:flex;align-items:center;gap:10px;border-bottom:1px solid #e2e8f0;margin-bottom:8px}
-#dash-detail-title .ddt-count{font-size:10.5px;font-weight:400;color:#94a3b8}
-#dtbl{width:100%;border-collapse:collapse;background:#fff;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);border-radius:8px;overflow:hidden;font-size:11.5px}
-#dtbl thead th{background:#1e3a5f;color:#fff;padding:8px 10px;font-size:11px;
-  font-weight:700;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
-#dtbl thead th:hover{background:#2d5f8a}
-#dtbl thead th .sort-arrow{margin-left:4px;opacity:.7;font-size:9px}
-#dtbl tbody tr{border-bottom:1px solid #f1f5f9;cursor:pointer}
-#dtbl tbody tr:hover{background:#f0f7ff}
-#dtbl tbody td{padding:7px 10px;vertical-align:middle}
+#dash-slicer select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:3px;
+  font-size:11.5px;background:#fff;color:#374151;outline:none}
+#dash-slicer select:focus{border-color:#2563eb}
+#dash-slicer .ds-label{font-size:9.5px;font-weight:700;color:#6b7280;
+  text-transform:uppercase;letter-spacing:.6px;margin-right:1px}
+.btn-ds-reset{padding:4px 10px;border:1px solid #e2e8f0;border-radius:3px;
+  background:#fff;font-size:11px;color:#475569;cursor:pointer}
+.btn-ds-reset:hover{background:#f1f5f9;border-color:#cbd5e1}
+#dash-stale-msg{font-size:11px;color:#92400e;background:#fef3c7;
+  padding:3px 10px;border-radius:2px;display:none;cursor:pointer;
+  border:1px solid #fde68a}
+
+#dash-kpis{display:flex;flex-wrap:wrap;border-bottom:1px solid #e2e8f0}
+.dk-card{flex:1;min-width:110px;background:#fff;padding:16px 20px 14px;
+  cursor:pointer;transition:background .1s;border-bottom:2px solid transparent;
+  border-right:1px solid #f1f5f9}
+.dk-card:last-child{border-right:none}
+.dk-card:hover{background:#f8fafc}
+.dk-card.dk-active{background:#f0f7ff;border-bottom-color:#2563eb}
+.dk-top{display:flex;align-items:center;gap:5px;margin-bottom:9px}
+.dk-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dk-title{font-size:9.5px;font-weight:700;color:#6b7280;
+  text-transform:uppercase;letter-spacing:.6px}
+.dk-num{font-size:26px;font-weight:700;line-height:1;color:#1e293b}
+.dk-bar-bg{height:3px;background:#f1f5f9;margin-top:9px;overflow:hidden}
+.dk-bar-fg{height:100%;transition:width .5s}
+.dk-pct{font-size:9.5px;color:#94a3b8;margin-top:4px}
+.dash-charts-row{display:flex;flex-wrap:wrap;gap:1px;background:#e2e8f0}
+.dash-card{background:#fff;padding:18px 20px 16px;flex:1;min-width:240px;position:relative}
+.dash-card-title{font-size:9.5px;font-weight:700;color:#6b7280;
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center}
+.dash-card-title .dc-sub{font-size:9px;font-weight:400;color:#94a3b8;
+  text-transform:none;letter-spacing:0}
+.dash-card canvas{max-height:200px}
+#ch-gauge-wrap{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:200px;gap:4px}
+.gauge-lbl{font-size:11px;font-weight:600;color:#475569;letter-spacing:.2px}
+.gauge-sub{font-size:9.5px;color:#94a3b8}
+#dash-detail{background:#f8fafc;padding:1px 24px 20px;border-top:1px solid #e2e8f0}
+#dash-detail-inner{background:#fff;border:1px solid #e2e8f0;margin-top:14px;overflow:hidden}
+#dash-detail-title{font-size:9.5px;font-weight:700;color:#6b7280;
+  text-transform:uppercase;letter-spacing:.6px;padding:11px 14px 10px;
+  display:flex;align-items:center;gap:10px;border-bottom:1px solid #f1f5f9}
+#dash-detail-title .ddt-count{font-size:9.5px;font-weight:400;color:#94a3b8;
+  text-transform:none;letter-spacing:0}
+#dtbl{width:100%;border-collapse:collapse;background:#fff;font-size:11.5px}
+#dtbl thead th{background:#fff;color:#6b7280;padding:8px 12px;font-size:9.5px;
+  font-weight:700;text-align:left;cursor:pointer;white-space:nowrap;
+  user-select:none;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:2px solid #e2e8f0}
+#dtbl thead th:hover{color:#1e293b}
+#dtbl thead th .sort-arrow{margin-left:4px;opacity:.6;font-size:9px}
+#dtbl tbody tr{border-bottom:1px solid #f8fafc;cursor:pointer}
+#dtbl tbody tr:hover{background:#f8fafc}
+#dtbl tbody td{padding:7px 12px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -528,6 +556,16 @@ tr.detail-row.open{display:table-row}
 
 <!-- DASHBOARD VIEW -->
 <div id="dash-view">
+  <div id="dash-header">
+    <div class="dh-left">
+      <div class="dh-title">ISO 17025 Audit Readiness Dashboard</div>
+      <div class="dh-sub">Central Laboratory &mdash; QC-Olefins &amp; UT (Chemical) &middot; QC-Polyolefins (Mechanical)</div>
+    </div>
+    <div class="dh-right">
+      <div class="dh-cert">VLAT-1.1544</div>
+      <div class="dh-meta">ISO/IEC 17025:2017 &middot; AOSC SR-01 Rev 05 &middot; Cycle 2025&ndash;2030</div>
+    </div>
+  </div>
   <div id="dash-slicer">
     <span class="ds-label">Source</span>
     <select id="ds-src" onchange="applyDashFilters()">
@@ -544,11 +582,12 @@ tr.detail-row.open{display:table-row}
     <select id="ds-sec" onchange="applyDashFilters()">
       <option value="">All Sections</option>
     </select>
-    <button class="btn-ds-reset" onclick="resetDashFilters()">✕ Reset</button>
-    <span id="dash-stale-msg" style="font-size:10.5px;color:#94a3b8;margin-left:6px;display:none">
-      ⚡ Data updated —
+    <button class="btn-ds-reset" onclick="resetDashFilters()">Reset</button>
+    <span id="dash-stale-msg" style="display:none;font-size:11px;color:#92400e;background:#fef3c7;
+      padding:3px 10px;border-radius:2px;border:1px solid #fde68a;margin-left:6px">
+      Data updated &mdash;
       <button onclick="buildDashboard()" style="margin-left:4px;padding:2px 8px;font-size:11px;
-        border:1px solid #cbd5e1;border-radius:4px;background:#fff;cursor:pointer">Refresh Dashboard</button>
+        border:1px solid #d97706;border-radius:2px;background:#fff;cursor:pointer;color:#92400e">Refresh</button>
     </span>
   </div>
   <!-- KPI Cards row -->
@@ -588,8 +627,9 @@ tr.detail-row.open{display:table-row}
   </div>
   <!-- Detail Table -->
   <div id="dash-detail">
+    <div id="dash-detail-inner">
     <div id="dash-detail-title">
-      📋 Requirement Detail
+      Requirement Detail
       <span class="ddt-count" id="ddt-count"></span>
     </div>
     <div style="overflow-x:auto">
@@ -606,6 +646,7 @@ tr.detail-row.open{display:table-row}
         </tr></thead>
         <tbody id="dtbl-body"></tbody>
       </table>
+    </div>
     </div>
   </div>
 </div>
@@ -1901,11 +1942,11 @@ let _dashBuilt  = false;
 let _ch = {};  // Chart.js instances
 
 const STAT_COLORS = {
-  "Compliant":           {bg:"rgba(209,250,229,.85)", border:"#10b981"},
-  "Partially Compliant": {bg:"rgba(254,243,199,.85)", border:"#f59e0b"},
-  "Non-Compliant":       {bg:"rgba(254,226,226,.85)", border:"#ef4444"},
-  "Not Yet Assessed":    {bg:"rgba(241,245,249,.85)", border:"#94a3b8"},
-  "Under Review":        {bg:"rgba(219,234,254,.85)", border:"#3b82f6"},
+  "Compliant":           {bg:"#d1fae5", border:"#059669"},
+  "Partially Compliant": {bg:"#fef3c7", border:"#d97706"},
+  "Non-Compliant":       {bg:"#fee2e2", border:"#dc2626"},
+  "Not Yet Assessed":    {bg:"#f1f5f9", border:"#6b7280"},
+  "Under Review":        {bg:"#dbeafe", border:"#2563eb"},
 };
 const STAT_KEYS = ["Compliant","Partially Compliant","Non-Compliant","Not Yet Assessed","Under Review"];
 
@@ -1990,22 +2031,25 @@ function computeStats(rows){
 function renderDashKPIs(stats){
   const {counts, total} = stats;
   const cards = [
-    {title:"Total",         icon:"📊", n:total,                            tot:total, barC:"#1e3a5f", numC:"#1e3a5f", fval:""},
-    {title:"Compliant",     icon:"✅", n:counts["Compliant"],               tot:total, barC:"#10b981", numC:"#065f46", fval:"Compliant"},
-    {title:"Partial",       icon:"⚠️", n:counts["Partially Compliant"],    tot:total, barC:"#f59e0b", numC:"#92400e", fval:"Partially Compliant"},
-    {title:"Non-Compliant", icon:"❌", n:counts["Non-Compliant"],           tot:total, barC:"#ef4444", numC:"#991b1b", fval:"Non-Compliant"},
-    {title:"Not Assessed",  icon:"⬜", n:counts["Not Yet Assessed"],        tot:total, barC:"#94a3b8", numC:"#475569", fval:"Not Yet Assessed"},
-    {title:"Under Review",  icon:"📋", n:counts["Under Review"],            tot:total, barC:"#3b82f6", numC:"#1e40af", fval:"Under Review"},
+    {title:"Total",         dot:"#1e293b", n:total,                          barC:"#1e293b", fval:""},
+    {title:"Compliant",     dot:"#059669", n:counts["Compliant"],             barC:"#059669", fval:"Compliant"},
+    {title:"Partial",       dot:"#d97706", n:counts["Partially Compliant"],  barC:"#d97706", fval:"Partially Compliant"},
+    {title:"Non-Compliant", dot:"#dc2626", n:counts["Non-Compliant"],         barC:"#dc2626", fval:"Non-Compliant"},
+    {title:"Not Assessed",  dot:"#6b7280", n:counts["Not Yet Assessed"],      barC:"#6b7280", fval:"Not Yet Assessed"},
+    {title:"Under Review",  dot:"#2563eb", n:counts["Under Review"],          barC:"#2563eb", fval:"Under Review"},
   ];
   let html = "";
-  cards.forEach(({title,icon,n,tot,barC,numC,fval}) => {
-    const pct = tot > 0 ? Math.round(n / tot * 100) : 0;
+  cards.forEach(({title,dot,n,barC,fval}) => {
+    const pct = total > 0 ? Math.round(n / total * 100) : 0;
     const isActive = fval && DB_FILTER.sta === fval;
-    html += `<div class="dk-card${isActive?" dk-active":""}" style="border-left-color:${barC}"
+    html += `<div class="dk-card${isActive?" dk-active":""}"
       onclick="setDashFilter('sta','${fval}')">
-      <div class="dk-top"><div class="dk-title">${title}</div><div class="dk-icon">${icon}</div></div>
-      <div class="dk-num" style="color:${numC}">${n}</div>
-      <div class="dk-bar-bg"><div class="dk-bar-fg" style="width:${pct}%;background:${barC}"></div></div>
+      <div class="dk-top">
+        <div class="dk-dot" style="background:${dot}"></div>
+        <div class="dk-title">${title}</div>
+      </div>
+      <div class="dk-num">${n}</div>
+      <div class="dk-bar-bg"><div class="dk-bar-fg" style="width:${pct}%;background:${dot}"></div></div>
       <div class="dk-pct">${pct}% of total</div>
     </div>`;
   });
@@ -2034,7 +2078,7 @@ function renderDashCharts(stats){
     options:{
       cutout:"62%",
       plugins:{
-        legend:{position:"right", labels:{font:{size:10}, padding:8, boxWidth:12}},
+        legend:{position:"right", labels:{font:{size:10,family:"Arial,sans-serif"}, color:"#475569", padding:8, boxWidth:10}},
         tooltip:{callbacks:{label: ctx => {
           const tot = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
           return `${ctx.label}: ${ctx.parsed} (${tot?Math.round(ctx.parsed/tot*100):0}%)`;
@@ -2064,12 +2108,12 @@ function renderDashCharts(stats){
     options:{
       indexAxis:"y",
       plugins:{
-        legend:{position:"bottom", labels:{font:{size:10}, padding:7, boxWidth:11}},
+        legend:{position:"bottom", labels:{font:{size:10,family:"Arial,sans-serif"}, color:"#475569", padding:7, boxWidth:10}},
         tooltip:{mode:"index", intersect:false}
       },
       scales:{
-        x:{stacked:true, grid:{color:"#f1f5f9"}},
-        y:{stacked:true, ticks:{font:{size:11}}}
+        x:{stacked:true, grid:{color:"#f1f5f9"}, ticks:{color:"#6b7280",font:{size:10}}},
+        y:{stacked:true, ticks:{font:{size:10,family:"Arial,sans-serif"},color:"#475569"}, grid:{display:false}}
       },
       responsive:true, maintainAspectRatio:true
     }
@@ -2092,10 +2136,13 @@ function renderDashCharts(stats){
     },
     options:{
       plugins:{
-        legend:{position:"bottom", labels:{font:{size:10}, padding:6, boxWidth:11}},
+        legend:{position:"bottom", labels:{font:{size:10,family:"Arial,sans-serif"}, color:"#475569", padding:6, boxWidth:10}},
         tooltip:{mode:"index", intersect:false}
       },
-      scales:{x:{stacked:true, grid:{display:false}}, y:{beginAtZero:true, stacked:true, grid:{color:"#f1f5f9"}}},
+      scales:{
+        x:{stacked:true, grid:{display:false}, ticks:{color:"#6b7280",font:{size:10}}},
+        y:{beginAtZero:true, stacked:true, grid:{color:"#f1f5f9"}, ticks:{color:"#6b7280",font:{size:10}}}
+      },
       onClick:(e, els) => { if(els.length) setDashFilter("src", els[0].index===0?"ISO 17025":"SR-01"); },
       responsive:true, maintainAspectRatio:true
     }
@@ -2104,7 +2151,7 @@ function renderDashCharts(stats){
   // 4 — Review frequency bar
   destroyChart("freq");
   const freqKeys   = ["Annual","Continuous","Change-Triggered"];
-  const freqLabels = ["🗓 Annual","🔄 Ongoing","🔀 On Change"];
+  const freqLabels = ["Annual","Ongoing","On Change"];
   const fCtx = document.getElementById("ch-freq")?.getContext("2d");
   if(fCtx) _ch.freq = new Chart(fCtx, {
     type:"bar",
@@ -2113,9 +2160,9 @@ function renderDashCharts(stats){
       datasets:[{
         label:"Requirements",
         data:   freqKeys.map(k => freqMap[k] || 0),
-        backgroundColor: ["rgba(254,243,199,.9)","rgba(209,250,229,.9)","rgba(237,233,254,.9)"],
-        borderColor:     ["#f59e0b","#10b981","#7c3aed"],
-        borderWidth:1, borderRadius:5
+        backgroundColor: ["#fef3c7","#d1fae5","#ede9fe"],
+        borderColor:     ["#d97706","#059669","#7c3aed"],
+        borderWidth:1, borderRadius:3
       }]
     },
     options:{
@@ -2123,7 +2170,10 @@ function renderDashCharts(stats){
         legend:{display:false},
         tooltip:{callbacks:{label: ctx => `${ctx.parsed.y} req.`}}
       },
-      scales:{y:{beginAtZero:true, grid:{color:"#f1f5f9"}}, x:{grid:{display:false}}},
+      scales:{
+        y:{beginAtZero:true, grid:{color:"#f1f5f9"}, ticks:{color:"#6b7280",font:{size:10}}},
+        x:{grid:{display:false}, ticks:{color:"#6b7280",font:{size:10,family:"Arial,sans-serif"}}}
+      },
       responsive:true, maintainAspectRatio:true
     }
   });
@@ -2134,18 +2184,18 @@ function renderDashCharts(stats){
   if(eCtx) _ch.expiry = new Chart(eCtx, {
     type:"doughnut",
     data:{
-      labels:["🔴 Expired","🟡 Before SA","🟢 Valid","No evidence"],
+      labels:["Expired","Before SA","Valid","No Evidence"],
       datasets:[{
         data: [expiryMap.expired, expiryMap["before-sa"], expiryMap.ok, expiryMap.none],
-        backgroundColor: ["rgba(254,226,226,.9)","rgba(254,243,199,.9)","rgba(209,250,229,.9)","rgba(241,245,249,.9)"],
-        borderColor:     ["#ef4444","#f59e0b","#10b981","#94a3b8"],
-        borderWidth:2, hoverOffset:5
+        backgroundColor: ["#fee2e2","#fef3c7","#d1fae5","#f1f5f9"],
+        borderColor:     ["#dc2626","#d97706","#059669","#6b7280"],
+        borderWidth:1, hoverOffset:5
       }]
     },
     options:{
       cutout:"58%",
       plugins:{
-        legend:{position:"right", labels:{font:{size:10}, padding:8, boxWidth:12}},
+        legend:{position:"right", labels:{font:{size:10,family:"Arial,sans-serif"}, color:"#475569", padding:8, boxWidth:10}},
         tooltip:{callbacks:{label: ctx => `${ctx.parsed} rows`}}
       },
       responsive:true, maintainAspectRatio:true
@@ -2161,9 +2211,9 @@ function renderGauge(score){
   const lblEl = document.getElementById("gauge-lbl");
   if(!gauge) return;
   const pct   = Math.min(Math.max(score, 0), 100) / 100;
-  const color = score >= 80 ? "#10b981" : score >= 55 ? "#f59e0b" : "#ef4444";
-  const label = score >= 80 ? "Excellent 🌟" : score >= 60 ? "Good 👍" : score >= 40 ? "Fair ⚠️" : "Needs Work ❌";
-  // SVG semicircle: r=72, cx=100, cy=88, arc from 180° to 0°
+  // Arc color: green for strong, amber for moderate, slate for low — never alarming red
+  const arcColor = score >= 75 ? "#059669" : score >= 50 ? "#d97706" : "#64748b";
+  const label = score >= 80 ? "Excellent" : score >= 65 ? "Good" : score >= 45 ? "Adequate" : "Needs Improvement";
   const R=72, cx=100, cy=88;
   const startX=cx-R, startY=cy;
   const endAngle = Math.PI - pct*Math.PI;
@@ -2172,16 +2222,16 @@ function renderGauge(score){
   const large = pct > 0.5 ? 1 : 0;
   const arcFg = pct > 0
     ? `<path d="M ${startX} ${startY} A ${R} ${R} 0 ${large} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}"
-         fill="none" stroke="${color}" stroke-width="15" stroke-linecap="round"/>`
+         fill="none" stroke="${arcColor}" stroke-width="14" stroke-linecap="round"/>`
     : "";
-  gauge.innerHTML = `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" style="width:190px">
+  gauge.innerHTML = `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" style="width:186px">
     <path d="M ${startX} ${startY} A ${R} ${R} 0 1 1 ${cx+R} ${cy}"
-      fill="none" stroke="#e2e8f0" stroke-width="15" stroke-linecap="round"/>
+      fill="none" stroke="#f1f5f9" stroke-width="14" stroke-linecap="round"/>
     ${arcFg}
-    <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="26" font-weight="800"
-      font-family="Arial,sans-serif" fill="${color}">${score}%</text>
-    <text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="10"
-      font-family="Arial,sans-serif" fill="#94a3b8">Weighted Score</text>
+    <text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="28" font-weight="700"
+      font-family="Arial,sans-serif" fill="#1e293b">${score}%</text>
+    <text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="9"
+      font-family="Arial,sans-serif" fill="#94a3b8" letter-spacing="0.5">WEIGHTED SCORE</text>
   </svg>`;
   if(lblEl) lblEl.textContent = label;
 }
@@ -2209,7 +2259,13 @@ function renderDashTable(rows){
     const st = STATE[r.id] || {};
     const evN = EV_COUNT[r.id] || 0;
     const expE = EV_EXPIRY[r.id];
-    const expDot = expE ? ({expired:"🔴","before-sa":"🟡",ok:"🟢"}[expE]||"") : "";
+    const expBadge = expE === "expired"
+      ? `<span style="font-size:9.5px;font-weight:700;color:#dc2626;background:#fee2e2;padding:1px 5px;border-radius:2px">EXP</span>`
+      : expE === "before-sa"
+      ? `<span style="font-size:9.5px;font-weight:700;color:#92400e;background:#fef3c7;padding:1px 5px;border-radius:2px">SA</span>`
+      : expE === "ok"
+      ? `<span style="font-size:9.5px;font-weight:700;color:#065f46;background:#d1fae5;padding:1px 5px;border-radius:2px">OK</span>`
+      : "";
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><code style="font-size:10.5px">${esc(r.clause_ref)}</code></td>
@@ -2219,7 +2275,7 @@ function renderDashTable(rows){
       <td>${statusBadge(st.status||"Not Yet Assessed")}</td>
       <td style="font-size:11px">${esc(st.owner||"—")}</td>
       <td style="font-size:11px;white-space:nowrap">${esc(st.dueDate||"—")}</td>
-      <td style="white-space:nowrap">${evN?`<span class="ev-dot">📎 ${evN}</span>`:""} ${expDot}</td>`;
+      <td style="white-space:nowrap;display:flex;gap:4px;align-items:center">${evN?`<span style="font-size:9.5px;font-weight:600;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:2px">${evN} file${evN!==1?"s":""}</span>`:""} ${expBadge}</td>`;
     tr.onclick = () => {
       switchTab("tracker");
       setTimeout(() => {
