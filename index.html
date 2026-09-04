@@ -712,6 +712,17 @@ let RISK_FILTER  = false;
 let APP_PWD_HASH = null;   // SHA-256 hash of app password, loaded from Supabase settings
 let _initCache   = null;   // holds {states,allLk,allFi} fetched before auth to avoid re-fetch
 
+// ── DATE FORMAT HELPER ─────────────────────────────────────────────────
+const _MABB=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtDate(s){
+  if(!s) return "";
+  const p=s.split("-");
+  if(p.length<3||p[0].length!==4) return s;
+  const mon=_MABB[parseInt(p[1],10)-1];
+  if(!mon) return s;
+  return `${p[2]}-${mon}-${p[0]}`;
+}
+
 // ── EXPIRY HELPERS ────────────────────────────────────────────────────
 function expiryStatus(dateStr) {
   if(!dateStr) return null;
@@ -752,7 +763,7 @@ function expiryBadgeHtml(dateStr) {
     ok:         ["exp-ok",    "🟢 Valid past SA"],
   };
   const [cls, lbl] = map[s];
-  return `<span class="badge ${cls}" title="Valid Until: ${dateStr}">${lbl}</span>`;
+  return `<span class="badge ${cls}" title="Valid Until: ${fmtDate(dateStr)}">${lbl}</span>`;
 }
 function rowExpiryDot(rid) {
   const s = EV_EXPIRY[rid];
@@ -1050,8 +1061,7 @@ function updateSaDateDisplay(){
   const el=document.getElementById("sa-date-show");
   if(!el) return;
   if(NEXT_SA_DATE){
-    const d=new Date(NEXT_SA_DATE+"T00:00:00");
-    el.textContent=d.toLocaleString("en-US",{month:"short",year:"numeric"});
+    el.textContent=fmtDate(NEXT_SA_DATE);
   } else { el.textContent="Not set"; }
 }
 function editSaDate(){
@@ -1107,7 +1117,7 @@ function render(filteredIds){
       <td style="font-size:11px">${esc(r.applicable_section)}</td>
       <td id="sc-${r.id}">${statusBadge(st.status)}${rowExpiryDot(r.id)}${evBadge(r.id)}</td>
       <td id="oc-${r.id}" style="font-size:11px">${esc(st.owner)}</td>
-      <td id="dc-${r.id}" style="font-size:11px">${esc(st.dueDate)}</td>`;
+      <td id="dc-${r.id}" style="font-size:11px">${esc(fmtDate(st.dueDate))}</td>`;
     tbody.appendChild(tr);
     const dtr=document.createElement("tr");
     dtr.className="detail-row"+(openId===r.id?" open":"");
@@ -1239,7 +1249,7 @@ function updateField(rid,field,val){
   STATE[rid][field]=val;
   if(field==="status"){ const c=document.getElementById("sc-"+rid); if(c) c.innerHTML=statusBadge(val)+rowExpiryDot(rid)+evBadge(rid); updateKPIs(null); }
   if(field==="owner") { const c=document.getElementById("oc-"+rid); if(c) c.textContent=val; }
-  if(field==="dueDate"){ const c=document.getElementById("dc-"+rid); if(c) c.textContent=val; }
+  if(field==="dueDate"){ const c=document.getElementById("dc-"+rid); if(c) c.textContent=fmtDate(val); }
   schedSave(rid);
   markDashboardStale();
 }
@@ -1475,19 +1485,15 @@ function buildTimeline(){
     {date:"2029-06-24",lbl:"Giám sát 4",sub:"SA4"},
     {date:"2030-06-23",lbl:"Tái công nhận",sub:"Re-accreditation"},
   ];
-  // Format display date dd/mm/yyyy
-  function fmt(d){const[y,m,dy]=d.split("-");return`${dy}/${m}/${y}`;}
   // Find next upcoming milestone
   let nextIdx=-1;
   for(let i=0;i<MILESTONES.length;i++){
     const md=new Date(MILESTONES[i].date); md.setHours(0,0,0,0);
     if(md>today){nextIdx=i;break;}
   }
-  // Today label
-  const dd=String(today.getDate()).padStart(2,"0"),
-        mm=String(today.getMonth()+1).padStart(2,"0"),
-        yy=today.getFullYear();
-  document.getElementById("cp-today-lbl").textContent=`Today: ${dd}/${mm}/${yy}`;
+  // Today label in DD-MMM-YYYY
+  const todayIso=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  document.getElementById("cp-today-lbl").textContent=`Today: ${fmtDate(todayIso)}`;
   // Build milestone nodes
   const tl=document.getElementById("cycle-tl");
   // Remove old mile nodes (keep .ct-line)
@@ -1498,7 +1504,7 @@ function buildTimeline(){
     if(md<today) state="completed";
     else if(i===nextIdx) state="next";
     const div=document.createElement("div"); div.className="ct-mile";
-    div.innerHTML=`<span class="ct-date${state==="future"?" future":""}">${fmt(m.date)}</span>
+    div.innerHTML=`<span class="ct-date${state==="future"?" future":""}">${fmtDate(m.date)}</span>
       <div class="ct-dot ${state}"></div>
       <span class="ct-lbl ${state}">${m.lbl}</span>
       <span class="ct-sub">${m.sub}</span>`;
@@ -1575,8 +1581,8 @@ async function exportExcel(){
       }).filter(Boolean).join(" | ");
       const fill=(rowIdx%2===0)?DEF_FILL:ALT_FILL;
       const row=ws.addRow([r.clause_ref,r.source,r.description,r.applicable_section,
-        st.status||"Not Yet Assessed",st.owner||"",st.dueDate||"",
-        st.lastReviewed||"",st.notes||"",links]);
+        st.status||"Not Yet Assessed",st.owner||"",fmtDate(st.dueDate)||"",
+        fmtDate(st.lastReviewed)||"",st.notes||"",links]);
       row.height=15;
       row.eachCell((cell,col)=>{
         cell.font=DEF_FONT; cell.border=ALL_BORDERS;
@@ -2353,7 +2359,7 @@ function renderDashTable(rows){
       <td style="font-size:10.5px">${esc(r.applicable_section||"")}</td>
       <td>${statusBadge(st.status||"Not Yet Assessed")}</td>
       <td style="font-size:11px">${esc(st.owner||"—")}</td>
-      <td style="font-size:11px;white-space:nowrap">${esc(st.dueDate||"—")}</td>
+      <td style="font-size:11px;white-space:nowrap">${esc(fmtDate(st.dueDate)||"—")}</td>
       <td style="white-space:nowrap;display:flex;gap:4px;align-items:center">${evN?`<span style="font-size:9.5px;font-weight:600;color:#2563eb;background:#dbeafe;padding:1px 6px;border-radius:2px">${evN} file${evN!==1?"s":""}</span>`:""} ${expBadge}</td>`;
     tr.onclick = () => {
       switchTab("tracker");
