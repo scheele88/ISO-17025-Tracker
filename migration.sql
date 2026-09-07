@@ -32,3 +32,18 @@ END $$;
 INSERT INTO settings (key, value)
 VALUES ('next_sa_date', '2027-05-01')
 ON CONFLICT (key) DO NOTHING;
+
+-- 5. Active flag on requirements (soft-delete / retire old clauses)
+ALTER TABLE requirements
+  ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- 6. Evidence suggested & reference note columns (populated by admin panel)
+ALTER TABLE requirements
+  ADD COLUMN IF NOT EXISTS evidence_suggested TEXT NOT NULL DEFAULT '';
+ALTER TABLE requirements
+  ADD COLUMN IF NOT EXISTS reference_note TEXT NOT NULL DEFAULT '';
+
+-- 7. Seed default accreditation cycle milestones (editable from Admin tab)
+INSERT INTO settings (key, value)
+VALUES ('cycle_milestones', '[{"date":"2025-06-24","lbl":"Chu ky 1","sub":"Initial accreditation"},{"date":"2026-06-24","lbl":"Giam sat 1","sub":"SA1"},{"date":"2027-06-24","lbl":"Giam sat 2","sub":"SA2"},{"date":"2028-06-24","lbl":"Giam sat 3","sub":"SA3"},{"date":"2029-06-24","lbl":"Giam sat 4","sub":"SA4"},{"date":"2030-06-23","lbl":"Tai cong nhan","sub":"Re-accreditation"}]')
+ON CONFLICT (key) DO NOTHING;

@@ -343,6 +343,96 @@ tr.detail-row.open{display:table-row}
 .btn-lock{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
 .btn-lock:hover{background:rgba(255,255,255,.25)}
 
+/* ── ADMIN PANEL ── */
+#admin-view{display:none;background:#f1f5f9;min-height:calc(100vh - 60px);padding:0 0 40px}
+#admin-view.active{display:block}
+.adm-header{padding:18px 28px 14px;background:#1e3a5f;color:#fff;
+  display:flex;align-items:center;gap:14px}
+.adm-header-icon{font-size:22px}
+.adm-header-title{font-size:16px;font-weight:800;letter-spacing:.3px}
+.adm-header-sub{font-size:11px;opacity:.75;margin-top:2px}
+.adm-section{background:#fff;border-radius:8px;margin:18px 24px 0;
+  box-shadow:0 1px 4px rgba(0,0,0,.10),0 0 0 1px rgba(0,0,0,.04);overflow:hidden}
+.adm-sec-head{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.adm-sec-title{font-size:13px;font-weight:700;color:#1e3a5f}
+.adm-sec-sub{font-size:11px;color:#64748b;margin-top:2px}
+.adm-toolbar{display:flex;gap:8px;align-items:center}
+.btn-adm-add{padding:6px 14px;border:none;border-radius:5px;
+  background:#1e3a5f;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.btn-adm-add:hover{background:#2d5f8a}
+.adm-src-filter{padding:5px 8px;border:1px solid #cbd5e1;border-radius:5px;
+  font-size:12px;color:#374151;outline:none}
+
+/* Requirements table */
+.adm-req-table{width:100%;border-collapse:collapse;font-size:12px}
+.adm-req-table thead th{background:#f8fafc;color:#475569;padding:8px 12px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  text-align:left;border-bottom:2px solid #e2e8f0;white-space:nowrap}
+.adm-req-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s}
+.adm-req-table tbody tr:hover{background:#f8fafc}
+.adm-req-table tbody td{padding:8px 12px;vertical-align:middle;color:#374151}
+.adm-retired td{opacity:.5}
+.adm-actions{display:flex;gap:5px}
+.btn-adm-edit{padding:3px 10px;border:1px solid #94a3b8;border-radius:4px;
+  background:#fff;color:#334155;font-size:11px;cursor:pointer}
+.btn-adm-edit:hover{background:#f1f5f9}
+.btn-adm-retire{padding:3px 10px;border:1px solid #fca5a5;border-radius:4px;
+  background:#fff;color:#dc2626;font-size:11px;cursor:pointer}
+.btn-adm-retire:hover{background:#fef2f2}
+.btn-adm-restore{padding:3px 10px;border:1px solid #86efac;border-radius:4px;
+  background:#fff;color:#16a34a;font-size:11px;cursor:pointer}
+.btn-adm-restore:hover{background:#f0fdf4}
+
+/* Admin modal */
+#adm-modal{position:fixed;inset:0;background:rgba(0,0,0,.50);backdrop-filter:blur(3px);
+  z-index:9500;display:flex;align-items:center;justify-content:center}
+#adm-modal.hidden{display:none}
+.adm-modal-card{background:#fff;border-radius:12px;padding:28px 32px;width:560px;
+  max-width:95vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 16px 50px rgba(0,0,0,.3)}
+.adm-modal-card h3{font-size:15px;font-weight:800;color:#1e3a5f;margin-bottom:18px}
+.adm-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.adm-form-full{margin-bottom:12px}
+.adm-form-lbl{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;
+  letter-spacing:.5px;display:block;margin-bottom:4px}
+.adm-form-inp{width:100%;padding:7px 10px;border:1.5px solid #cbd5e1;
+  border-radius:6px;font-size:12.5px;outline:none;font-family:Arial,sans-serif;box-sizing:border-box}
+.adm-form-inp:focus{border-color:#1e3a5f;box-shadow:0 0 0 3px rgba(30,58,95,.1)}
+.adm-form-ta{min-height:72px;resize:vertical}
+.adm-modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-adm-save{padding:9px 22px;border:none;border-radius:7px;
+  background:#1e3a5f;color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.btn-adm-save:hover{background:#2d5f8a}
+.btn-adm-cancel{padding:9px 18px;border:none;border-radius:7px;
+  background:#f1f5f9;color:#475569;font-size:13px;font-weight:700;cursor:pointer}
+.btn-adm-cancel:hover{background:#e2e8f0}
+.adm-form-err{color:#dc2626;font-size:11px;margin-top:6px}
+
+/* Cycle editor */
+.adm-cycle-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.adm-cycle-table thead th{background:#f8fafc;color:#475569;padding:8px 14px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  text-align:left;border-bottom:2px solid #e2e8f0}
+.adm-cycle-table tbody td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.adm-cycle-inp{padding:5px 8px;border:1.5px solid #cbd5e1;border-radius:5px;
+  font-size:12px;outline:none;font-family:Arial,sans-serif}
+.adm-cycle-inp:focus{border-color:#1e3a5f}
+.adm-cycle-inp.date-in{width:140px}
+.adm-cycle-inp.lbl-in{width:120px}
+.adm-cycle-inp.sub-in{width:160px}
+.btn-adm-rm-row{padding:2px 8px;border:1px solid #fca5a5;border-radius:4px;
+  background:#fff;color:#dc2626;font-size:11px;cursor:pointer}
+.adm-cycle-footer{padding:14px 20px;display:flex;gap:10px;align-items:center;
+  border-top:1px solid #e2e8f0;background:#f8fafc}
+.btn-adm-save-cycle{padding:8px 20px;border:none;border-radius:6px;
+  background:#16a34a;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.btn-adm-save-cycle:hover{background:#15803d}
+.btn-adm-add-row{padding:8px 16px;border:1.5px dashed #94a3b8;border-radius:6px;
+  background:#fff;color:#64748b;font-size:12px;cursor:pointer}
+.btn-adm-add-row:hover{border-color:#1e3a5f;color:#1e3a5f}
+.adm-cycle-msg{font-size:11.5px;color:#16a34a;font-weight:600}
+
 /* ── DASHBOARD ── */
 #dash-view{display:none;background:#edf0f5;padding-bottom:40px;
   --dash-accent:#1e3a5f}
@@ -496,6 +586,7 @@ tr.detail-row.open{display:table-row}
     <div class="tab-btns">
       <button class="tab-btn active" id="tab-tracker" onclick="switchTab('tracker')">📋 Tracker</button>
       <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">⚙️ Admin</button>
     </div>
     <div id="sa-ctrl">
       <span class="sa-lbl">Next SA:</span>
@@ -689,6 +780,130 @@ tr.detail-row.open{display:table-row}
   </table>
 </div><!-- end table-wrap -->
 </div><!-- end tracker-view -->
+
+<!-- ADMIN VIEW -->
+<div id="admin-view">
+  <div class="adm-header">
+    <div class="adm-header-icon">⚙️</div>
+    <div>
+      <div class="adm-header-title">Admin Panel</div>
+      <div class="adm-header-sub">Manage requirements &amp; accreditation cycle settings — changes apply immediately to all users</div>
+    </div>
+  </div>
+
+  <!-- Requirements Section -->
+  <div class="adm-section">
+    <div class="adm-sec-head">
+      <div>
+        <div class="adm-sec-title">Requirements Management</div>
+        <div class="adm-sec-sub">Add, edit, or retire clauses when the standard is revised</div>
+      </div>
+      <div class="adm-toolbar">
+        <select class="adm-src-filter" id="adm-src-filter" onchange="renderAdmReqTable()">
+          <option value="">All Sources</option>
+          <option value="ISO 17025">ISO 17025</option>
+          <option value="SR-01">SR-01</option>
+        </select>
+        <select class="adm-src-filter" id="adm-active-filter" onchange="renderAdmReqTable()">
+          <option value="active">Active only</option>
+          <option value="all">Show all (incl. retired)</option>
+        </select>
+        <button class="btn-adm-add" onclick="openAdmModal()">+ Add Requirement</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-req-table">
+        <thead>
+          <tr>
+            <th>Clause Ref</th><th>Source</th><th>Section</th><th>Frequency</th>
+            <th>Description</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adm-req-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cycle Settings Section -->
+  <div class="adm-section" style="margin-top:18px">
+    <div class="adm-sec-head">
+      <div>
+        <div class="adm-sec-title">Accreditation Cycle Settings</div>
+        <div class="adm-sec-sub">Edit milestone dates for the current or next accreditation cycle</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;padding:16px 20px 0">
+      <table class="adm-cycle-table">
+        <thead>
+          <tr><th>Date (YYYY-MM-DD)</th><th>Label</th><th>Sub-label</th><th></th></tr>
+        </thead>
+        <tbody id="adm-cycle-tbody"></tbody>
+      </table>
+    </div>
+    <div class="adm-cycle-footer">
+      <button class="btn-adm-save-cycle" onclick="saveCycle()">💾 Save Cycle</button>
+      <button class="btn-adm-add-row" onclick="addCycleRow()">+ Add Milestone</button>
+      <span class="adm-cycle-msg" id="adm-cycle-msg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL (add / edit requirement) -->
+<div id="adm-modal" class="hidden">
+  <div class="adm-modal-card">
+    <h3 id="adm-modal-title">Add Requirement</h3>
+    <input type="hidden" id="adm-edit-id"/>
+    <div class="adm-form-row">
+      <div>
+        <label class="adm-form-lbl">Clause Reference *</label>
+        <input class="adm-form-inp" id="adm-f-ref" placeholder="e.g. 6.3.3"/>
+      </div>
+      <div>
+        <label class="adm-form-lbl">Source *</label>
+        <select class="adm-form-inp" id="adm-f-src">
+          <option value="ISO 17025">ISO 17025</option>
+          <option value="SR-01">SR-01</option>
+        </select>
+      </div>
+    </div>
+    <div class="adm-form-row">
+      <div>
+        <label class="adm-form-lbl">Applicable Section</label>
+        <select class="adm-form-inp" id="adm-f-sec">
+          <option value="Both">Both</option>
+          <option value="QC-Olefins">QC-Olefins &amp; UT (Chemical)</option>
+          <option value="QC-Polyolefins">QC-Polyolefins (Mechanical)</option>
+        </select>
+      </div>
+      <div>
+        <label class="adm-form-lbl">Review Frequency</label>
+        <select class="adm-form-inp" id="adm-f-freq">
+          <option value="Annual">Annual</option>
+          <option value="Continuous">Continuous</option>
+          <option value="Change-Triggered">Change-Triggered</option>
+        </select>
+      </div>
+    </div>
+    <div class="adm-form-full">
+      <label class="adm-form-lbl">Description *</label>
+      <textarea class="adm-form-inp adm-form-ta" id="adm-f-desc" placeholder="Full requirement text…"></textarea>
+    </div>
+    <div class="adm-form-full">
+      <label class="adm-form-lbl">Evidence Suggested</label>
+      <textarea class="adm-form-inp adm-form-ta" id="adm-f-evid" placeholder="Documents, records, or artefacts that satisfy this clause…"></textarea>
+    </div>
+    <div class="adm-form-full">
+      <label class="adm-form-lbl">Reference Note</label>
+      <input class="adm-form-inp" id="adm-f-note" placeholder="Optional cross-reference or note…"/>
+    </div>
+    <div class="adm-form-err" id="adm-form-err"></div>
+    <div class="adm-modal-btns">
+      <button class="btn-adm-cancel" onclick="closeAdmModal()">Cancel</button>
+      <button class="btn-adm-save" onclick="submitAdmReq()">Save Requirement</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="hidden-fi" accept="*/*"/>
 
 <script>
@@ -711,6 +926,8 @@ let _fileTarget  = null;
 let RISK_FILTER  = false;
 let APP_PWD_HASH = null;   // SHA-256 hash of app password, loaded from Supabase settings
 let _initCache   = null;   // holds {states,allLk,allFi} fetched before auth to avoid re-fetch
+let MILESTONES_DATA = null; // loaded from settings; null = use hardcoded defaults
+let ADM_REQS     = [];     // flat array of all requirements (incl. retired) for admin panel
 
 // ── DATE FORMAT HELPER ─────────────────────────────────────────────────
 const _MABB=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -980,7 +1197,10 @@ async function init() {
   // Extract settings
   NEXT_SA_DATE = (settingsData||[]).find(s=>s.key==="next_sa_date")?.value || "2027-05-01";
   APP_PWD_HASH = (settingsData||[]).find(s=>s.key==="app_password_hash")?.value || null;
+  const milVal = (settingsData||[]).find(s=>s.key==="cycle_milestones")?.value;
+  if(milVal){ try{ MILESTONES_DATA=JSON.parse(milVal); }catch(e){} }
   updateSaDateDisplay();
+  buildTimeline(); // rebuild with potentially updated milestones
 
   // Cache raw data so loadAfterAuth() can apply it without a second fetch
   _initCache = {states, allLk, allFi};
@@ -1020,6 +1240,10 @@ async function loadAfterAuth() {
 
 // Builds STATE, expiry map, evidence counts, then renders
 function applyData(states, allLk, allFi) {
+  // Keep full set for admin; tracker only sees active requirements
+  ADM_REQS = REQS.slice();
+  REQS = REQS.filter(r => r.active !== false);
+
   STATE = {};
   (states||[]).forEach(s=>{
     STATE[s.row_id]={status:s.status||"Not Yet Assessed",owner:s.owner||"",
@@ -1477,7 +1701,7 @@ function clearFilters(){
 // ── ACCREDITATION CYCLE TIMELINE ──────────────────────────────────────
 function buildTimeline(){
   const today=new Date(); today.setHours(0,0,0,0);
-  const MILESTONES=[
+  const HARDCODED=[
     {date:"2025-06-24",lbl:"Chu kỳ 1",sub:"Initial accreditation"},
     {date:"2026-06-24",lbl:"Giám sát 1",sub:"SA1"},
     {date:"2027-06-24",lbl:"Giám sát 2",sub:"SA2"},
@@ -1485,6 +1709,14 @@ function buildTimeline(){
     {date:"2029-06-24",lbl:"Giám sát 4",sub:"SA4"},
     {date:"2030-06-23",lbl:"Tái công nhận",sub:"Re-accreditation"},
   ];
+  const MILESTONES = MILESTONES_DATA || HARDCODED;
+  // Update cycle title from first/last milestone years
+  if(MILESTONES.length>=2){
+    const y1=MILESTONES[0].date.slice(0,4);
+    const y2=MILESTONES[MILESTONES.length-1].date.slice(0,4);
+    const titleEl=document.querySelector(".cp-title");
+    if(titleEl) titleEl.textContent=`Accreditation Cycle ${y1} – ${y2}`;
+  }
   // Find next upcoming milestone
   let nextIdx=-1;
   for(let i=0;i<MILESTONES.length;i++){
@@ -1629,21 +1861,25 @@ function freqBadge(rid){
 
 // ── TAB SWITCHER ──────────────────────────────────────────────────────
 function switchTab(tab){
-  const isDash = tab==="dashboard";
+  const isDash    = tab==="dashboard";
   const isTracker = tab==="tracker";
+  const isAdmin   = tab==="admin";
   // Show/hide main views
   document.getElementById("dash-view").classList.toggle("active", isDash);
   document.getElementById("tracker-view").classList.toggle("hidden", !isTracker);
+  document.getElementById("admin-view").classList.toggle("active", isAdmin);
   // Show/hide tracker-only chrome (KPI bar, filter bar, cycle panel)
   ["kpi-bar","filter-bar","cycle-panel"].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.style.display=isDash?"none":"";
+    if(el) el.style.display=(isDash||isAdmin)?"none":"";
   });
   // Activate correct tab button
   document.getElementById("tab-tracker").classList.toggle("active", isTracker);
   document.getElementById("tab-dashboard").classList.toggle("active", isDash);
-  // Build dashboard on switch (always rebuilds if stale)
+  document.getElementById("tab-admin").classList.toggle("active", isAdmin);
+  // Build views on switch
   if(isDash) buildDashboard();
+  if(isAdmin) buildAdmin();
 }
 
 // ── PLANNER ───────────────────────────────────────────────────────────
@@ -2420,6 +2656,218 @@ function dashSort(col){
   if(DB_SORT.col === col) DB_SORT.dir *= -1;
   else { DB_SORT.col = col; DB_SORT.dir = 1; }
   renderDashTable(getDashRows());
+}
+
+// ── ADMIN PANEL ──────────────────────────────────────────────────────
+function buildAdmin(){
+  renderAdmReqTable();
+  renderCycleEditor();
+}
+
+function renderAdmReqTable(){
+  const srcF    = (document.getElementById("adm-src-filter")||{}).value||"";
+  const activeF = (document.getElementById("adm-active-filter")||{}).value||"active";
+  let rows = ADM_REQS.filter(r=>r.type==="DAT");
+  if(srcF)              rows = rows.filter(r=>r.source===srcF);
+  if(activeF==="active") rows = rows.filter(r=>r.active!==false);
+  const tbody = document.getElementById("adm-req-tbody");
+  if(!tbody) return;
+  if(rows.length===0){
+    tbody.innerHTML=`<tr><td colspan="7" style="padding:20px;text-align:center;color:#94a3b8;font-size:12px">No requirements found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r=>{
+    const retired = r.active===false;
+    const srcBadgeHtml = r.source==="SR-01"
+      ?`<span class="badge src-sr01">SR-01</span>`
+      :`<span class="badge src-iso">ISO</span>`;
+    const freqMap={Annual:"🗓 Annual",Continuous:"🔄 Ongoing","Change-Triggered":"🔀 On Change"};
+    const freqLbl = freqMap[FREQ[r.id]]||"—";
+    const desc = (r.description||"").substring(0,80)+((r.description||"").length>80?"…":"");
+    const statusLbl = retired
+      ?`<span style="font-size:10px;font-weight:700;color:#64748b;background:#f1f5f9;padding:2px 7px;border-radius:3px">Retired</span>`
+      :`<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 7px;border-radius:3px">Active</span>`;
+    const actions = retired
+      ?`<button class="btn-adm-restore" onclick="admToggleActive('${r.id}',false)">Restore</button>`
+      :`<button class="btn-adm-edit" onclick="openAdmModal('${r.id}')">Edit</button>
+        <button class="btn-adm-retire" onclick="admToggleActive('${r.id}',true)">Retire</button>`;
+    return `<tr class="${retired?'adm-retired':''}">
+      <td><code style="font-size:11px">${esc(r.clause_ref)}</code></td>
+      <td>${srcBadgeHtml}</td>
+      <td style="font-size:11px">${esc(r.applicable_section||"Both")}</td>
+      <td style="font-size:11px;white-space:nowrap">${freqLbl}</td>
+      <td style="font-size:11px;color:#374151">${esc(desc)}</td>
+      <td>${statusLbl}</td>
+      <td><div class="adm-actions">${actions}</div></td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Admin modal (add / edit) ──────────────────────────────────────────
+function openAdmModal(id){
+  document.getElementById("adm-form-err").textContent="";
+  if(id){
+    // Edit mode
+    const r = ADM_REQS.find(x=>x.id===id||String(x.id)===String(id));
+    if(!r) return;
+    document.getElementById("adm-modal-title").textContent="Edit Requirement";
+    document.getElementById("adm-edit-id").value = r.id;
+    document.getElementById("adm-f-ref").value   = r.clause_ref||"";
+    document.getElementById("adm-f-src").value   = r.source||"ISO 17025";
+    document.getElementById("adm-f-sec").value   = r.applicable_section||"Both";
+    document.getElementById("adm-f-freq").value  = FREQ[r.id]||"Annual";
+    document.getElementById("adm-f-desc").value  = r.description||"";
+    document.getElementById("adm-f-evid").value  = r.evidence_suggested||"";
+    document.getElementById("adm-f-note").value  = r.reference_note||"";
+  } else {
+    // Add mode
+    document.getElementById("adm-modal-title").textContent="Add Requirement";
+    document.getElementById("adm-edit-id").value="";
+    ["adm-f-ref","adm-f-desc","adm-f-evid","adm-f-note"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("adm-f-src").value="ISO 17025";
+    document.getElementById("adm-f-sec").value="Both";
+    document.getElementById("adm-f-freq").value="Annual";
+  }
+  document.getElementById("adm-modal").classList.remove("hidden");
+}
+function closeAdmModal(){
+  document.getElementById("adm-modal").classList.add("hidden");
+}
+
+async function submitAdmReq(){
+  const editId  = document.getElementById("adm-edit-id").value;
+  const ref     = document.getElementById("adm-f-ref").value.trim();
+  const src     = document.getElementById("adm-f-src").value;
+  const sec     = document.getElementById("adm-f-sec").value;
+  const freq    = document.getElementById("adm-f-freq").value;
+  const desc    = document.getElementById("adm-f-desc").value.trim();
+  const evid    = document.getElementById("adm-f-evid").value.trim();
+  const note    = document.getElementById("adm-f-note").value.trim();
+  const errEl   = document.getElementById("adm-form-err");
+  if(!ref||!desc){ errEl.textContent="Clause Reference and Description are required."; return; }
+  errEl.textContent="";
+  const btn = document.querySelector("#adm-modal .btn-adm-save");
+  btn.disabled=true; btn.textContent="Saving…";
+
+  if(editId){
+    // Update existing
+    const {error} = await db.from("requirements").update({
+      clause_ref:ref, source:src, applicable_section:sec,
+      description:desc, evidence_suggested:evid, reference_note:note
+    }).eq("id",editId);
+    if(error){ errEl.textContent="Error: "+error.message; btn.disabled=false; btn.textContent="Save Requirement"; return; }
+    // Update FREQ map
+    FREQ[editId]=freq;
+    await db.from("requirements").update({frequency:freq}).eq("id",editId);
+    // Update local arrays
+    const idx = ADM_REQS.findIndex(r=>String(r.id)===String(editId));
+    if(idx>=0) Object.assign(ADM_REQS[idx],{clause_ref:ref,source:src,applicable_section:sec,description:desc,evidence_suggested:evid,reference_note:note});
+    const ridx = REQS.findIndex(r=>String(r.id)===String(editId));
+    if(ridx>=0) Object.assign(REQS[ridx],{clause_ref:ref,source:src,applicable_section:sec,description:desc,evidence_suggested:evid,reference_note:note});
+  } else {
+    // Insert new
+    const newId = "req_"+Date.now();
+    const sortOrder = Date.now();
+    const {error} = await db.from("requirements").insert({
+      id:newId, clause_ref:ref, source:src, applicable_section:sec,
+      description:desc, evidence_suggested:evid, reference_note:note,
+      frequency:freq, type:"DAT", sort_order:sortOrder, active:true
+    });
+    if(error){ errEl.textContent="Error: "+error.message; btn.disabled=false; btn.textContent="Save Requirement"; return; }
+    const newRow={id:newId,clause_ref:ref,source:src,applicable_section:sec,
+      description:desc,evidence_suggested:evid,reference_note:note,
+      frequency:freq,type:"DAT",sort_order:sortOrder,active:true,hdr_source:"",hdr_label:""};
+    ADM_REQS.push(newRow);
+    REQS.push(newRow);
+    FREQ[newId]=freq;
+    STATE[newId]={status:"Not Yet Assessed",owner:"",dueDate:"",lastReviewed:"",notes:""};
+    render(null); markDashboardStale();
+  }
+  btn.disabled=false; btn.textContent="Save Requirement";
+  closeAdmModal();
+  renderAdmReqTable();
+}
+
+async function admToggleActive(id, retire){
+  if(retire && !confirm("Retire this requirement? It will be hidden from the tracker. You can restore it later.")) return;
+  const {error} = await db.from("requirements").update({active:!retire}).eq("id",id);
+  if(error){ alert("Error: "+error.message); return; }
+  // Update local arrays
+  const r = ADM_REQS.find(x=>String(x.id)===String(id));
+  if(r) r.active = !retire;
+  // Update REQS (active tracker list)
+  if(retire){
+    REQS = REQS.filter(x=>String(x.id)!==String(id));
+  } else {
+    if(!REQS.find(x=>String(x.id)===String(id))){
+      const full = ADM_REQS.find(x=>String(x.id)===String(id));
+      if(full) REQS.push(full);
+    }
+  }
+  render(null); markDashboardStale();
+  renderAdmReqTable();
+}
+
+// ── Cycle editor ──────────────────────────────────────────────────────
+function renderCycleEditor(){
+  const data = MILESTONES_DATA || [
+    {date:"2025-06-24",lbl:"Chu kỳ 1",sub:"Initial accreditation"},
+    {date:"2026-06-24",lbl:"Giám sát 1",sub:"SA1"},
+    {date:"2027-06-24",lbl:"Giám sát 2",sub:"SA2"},
+    {date:"2028-06-24",lbl:"Giám sát 3",sub:"SA3"},
+    {date:"2029-06-24",lbl:"Giám sát 4",sub:"SA4"},
+    {date:"2030-06-23",lbl:"Tái công nhận",sub:"Re-accreditation"},
+  ];
+  const tbody = document.getElementById("adm-cycle-tbody");
+  if(!tbody) return;
+  tbody.innerHTML = data.map((m,i)=>`
+    <tr id="cycle-row-${i}">
+      <td><input class="adm-cycle-inp date-in" value="${esc(m.date)}" placeholder="YYYY-MM-DD" id="cr-date-${i}"/></td>
+      <td><input class="adm-cycle-inp lbl-in"  value="${esc(m.lbl)}"  placeholder="Label"      id="cr-lbl-${i}"/></td>
+      <td><input class="adm-cycle-inp sub-in"  value="${esc(m.sub)}"  placeholder="Sub-label"  id="cr-sub-${i}"/></td>
+      <td><button class="btn-adm-rm-row" onclick="removeCycleRow(${i})">✕</button></td>
+    </tr>`).join("");
+}
+
+function addCycleRow(){
+  const tbody=document.getElementById("adm-cycle-tbody");
+  if(!tbody) return;
+  const i=tbody.rows.length;
+  const tr=document.createElement("tr"); tr.id="cycle-row-"+i;
+  tr.innerHTML=`
+    <td><input class="adm-cycle-inp date-in" value="" placeholder="YYYY-MM-DD" id="cr-date-${i}"/></td>
+    <td><input class="adm-cycle-inp lbl-in"  value="" placeholder="Label"      id="cr-lbl-${i}"/></td>
+    <td><input class="adm-cycle-inp sub-in"  value="" placeholder="Sub-label"  id="cr-sub-${i}"/></td>
+    <td><button class="btn-adm-rm-row" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tbody.appendChild(tr);
+}
+
+function removeCycleRow(i){
+  const tr=document.getElementById("cycle-row-"+i);
+  if(tr) tr.remove();
+}
+
+async function saveCycle(){
+  const tbody=document.getElementById("adm-cycle-tbody");
+  if(!tbody) return;
+  const milestones=[];
+  for(const tr of tbody.rows){
+    const idx=tr.id.replace("cycle-row-","");
+    const date=(document.getElementById("cr-date-"+idx)||tr.querySelector("input.date-in"))?.value.trim();
+    const lbl =(document.getElementById("cr-lbl-"+idx) ||tr.querySelector("input.lbl-in"))?.value.trim();
+    const sub =(document.getElementById("cr-sub-"+idx) ||tr.querySelector("input.sub-in"))?.value.trim();
+    if(date&&lbl) milestones.push({date,lbl,sub:sub||""});
+  }
+  if(milestones.length<2){ alert("Please enter at least 2 milestones."); return; }
+  const msgEl=document.getElementById("adm-cycle-msg");
+  msgEl.textContent="Saving…";
+  const {error}=await db.from("settings").upsert({key:"cycle_milestones",value:JSON.stringify(milestones)},{onConflict:"key"});
+  if(error){ msgEl.style.color="#dc2626"; msgEl.textContent="Error: "+error.message; return; }
+  MILESTONES_DATA=milestones;
+  buildTimeline();
+  msgEl.style.color="#16a34a";
+  msgEl.textContent="✓ Saved — timeline updated";
+  setTimeout(()=>{ msgEl.textContent=""; },3000);
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────
