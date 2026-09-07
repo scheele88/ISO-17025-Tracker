@@ -433,6 +433,30 @@ tr.detail-row.open{display:table-row}
 .btn-adm-add-row:hover{border-color:#1e3a5f;color:#1e3a5f}
 .adm-cycle-msg{font-size:11.5px;color:#16a34a;font-weight:600}
 
+/* ── ADMIN PASSWORD GATE ── */
+#adm-gate{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+  z-index:9800;display:flex;align-items:center;justify-content:center}
+#adm-gate.hidden{display:none}
+.adm-gate-card{background:#fff;border-radius:14px;padding:36px 40px;width:340px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}
+.adm-gate-icon{font-size:36px;margin-bottom:12px}
+.adm-gate-card h3{font-size:16px;font-weight:800;color:#1e3a5f;margin-bottom:6px}
+.adm-gate-card p{font-size:11.5px;color:#64748b;margin-bottom:18px}
+.adm-gate-card input[type=password]{
+  width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:8px;
+  font-size:16px;text-align:center;letter-spacing:3px;outline:none;
+  margin-bottom:12px;font-family:Arial,sans-serif;box-sizing:border-box}
+.adm-gate-card input[type=password]:focus{border-color:#1e3a5f;
+  box-shadow:0 0 0 3px rgba(30,58,95,.15)}
+.adm-gate-btns{display:flex;gap:8px;margin-top:4px}
+.adm-gate-btns button{flex:1;padding:10px;border:none;border-radius:8px;
+  font-size:13px;font-weight:700;cursor:pointer}
+.btn-adm-unlock{background:linear-gradient(135deg,#1e3a5f,#2d5f8a);color:#fff}
+.btn-adm-unlock:hover{opacity:.9}
+.btn-adm-gate-cancel{background:#f1f5f9;color:#475569}
+.btn-adm-gate-cancel:hover{background:#e2e8f0}
+#adm-gate-err{color:#dc2626;font-size:11.5px;margin-top:8px;min-height:16px}
+
 /* ── DASHBOARD ── */
 #dash-view{display:none;background:#edf0f5;padding-bottom:40px;
   --dash-accent:#1e3a5f}
@@ -844,6 +868,22 @@ tr.detail-row.open{display:table-row}
       <button class="btn-adm-save-cycle" onclick="saveCycle()">💾 Save Cycle</button>
       <button class="btn-adm-add-row" onclick="addCycleRow()">+ Add Milestone</button>
       <span class="adm-cycle-msg" id="adm-cycle-msg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PASSWORD GATE -->
+<div id="adm-gate" class="hidden">
+  <div class="adm-gate-card">
+    <div class="adm-gate-icon">🔐</div>
+    <h3>Admin Access Required</h3>
+    <p>Enter your password to access the Admin panel</p>
+    <input type="password" id="adm-gate-pwd" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') verifyAdminPwd()"/>
+    <div id="adm-gate-err"></div>
+    <div class="adm-gate-btns">
+      <button class="btn-adm-gate-cancel" onclick="cancelAdminGate()">Cancel</button>
+      <button class="btn-adm-unlock" onclick="verifyAdminPwd()">Unlock</button>
     </div>
   </div>
 </div>
@@ -1879,7 +1919,42 @@ function switchTab(tab){
   document.getElementById("tab-admin").classList.toggle("active", isAdmin);
   // Build views on switch
   if(isDash) buildDashboard();
-  if(isAdmin) buildAdmin();
+  if(isAdmin){
+    if(APP_PWD_HASH){
+      // Always require password before entering Admin
+      showAdminGate();
+    } else {
+      buildAdmin();
+    }
+  }
+}
+
+function showAdminGate(){
+  const el=document.getElementById("adm-gate-pwd");
+  if(el){el.value=""; el.focus();}
+  document.getElementById("adm-gate-err").textContent="";
+  document.getElementById("adm-gate").classList.remove("hidden");
+}
+function cancelAdminGate(){
+  document.getElementById("adm-gate").classList.add("hidden");
+  // Switch back to tracker so admin-view doesn't stay visible behind gate
+  switchTab("tracker");
+}
+async function verifyAdminPwd(){
+  const pwd = document.getElementById("adm-gate-pwd").value;
+  const errEl= document.getElementById("adm-gate-err");
+  if(!pwd){errEl.textContent="Please enter the password."; return;}
+  const hash = await sha256(pwd);
+  if(hash===APP_PWD_HASH){
+    document.getElementById("adm-gate-pwd").value="";
+    errEl.textContent="";
+    document.getElementById("adm-gate").classList.add("hidden");
+    buildAdmin();
+  } else {
+    errEl.textContent="Incorrect password.";
+    document.getElementById("adm-gate-pwd").value="";
+    document.getElementById("adm-gate-pwd").focus();
+  }
 }
 
 // ── PLANNER ───────────────────────────────────────────────────────────
